@@ -1,0 +1,33 @@
+{
+  "name": "claude-skills",
+  "owner": {
+    "name": "claude-contrib"
+  },
+  "metadata": {
+    "description": "A curated collection of Claude Code skills — slash commands and prompt templates",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "commit",
+      "description": "Create a well-structured git commit with a conventional commit message",
+      "version": "1.0.0",
+      "author": {
+        "name": "claude-contrib"
+      },
+      "source": "./plugins/commit",
+      "category": "skills",
+      "tags": [
+        "git",
+        "commit",
+        "conventional-commits"
+      ],
+      "keywords": [
+        "git",
+        "commit",
+        "conventional-commits",
+        "version-control"
+      ]
+    }
+  ]
+}
