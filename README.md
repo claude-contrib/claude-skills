@@ -3,6 +3,7 @@
 > Slash commands for [Claude Code](https://claude.ai/code) — type `/commit`, get a perfect conventional commit. Every time.
 
 [![Validate](https://github.com/claude-contrib/claude-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/claude-contrib/claude-skills/actions/workflows/validate.yml)
+[![Release](https://img.shields.io/github/v/release/claude-contrib/claude-skills)](https://github.com/claude-contrib/claude-skills/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Skills are intentional — you invoke them when you need them. Each skill is a focused workflow: one command, one job, done right. No more writing the same prompt over and over.
