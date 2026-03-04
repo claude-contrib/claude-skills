@@ -2,7 +2,7 @@
 
 A curated collection of Claude Code skills — slash commands and prompt templates you invoke intentionally.
 
-[![Validate Plugins](https://github.com/claude-contrib/claude-skills/actions/workflows/validate-plugins.yml/badge.svg)](https://github.com/claude-contrib/claude-skills/actions/workflows/validate-plugins.yml)
+[![Plugins](https://github.com/claude-contrib/claude-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/claude-contrib/claude-skills/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## What are Skills?
