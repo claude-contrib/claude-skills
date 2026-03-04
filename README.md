@@ -1,6 +1,16 @@
 # Claude Skills
 
-A curated collection of Claude Code skills — slash commands and prompt templates that you invoke intentionally.
+A curated collection of Claude Code skills — slash commands and prompt templates you invoke intentionally.
+
+[![Validate Plugins](https://github.com/claude-contrib/claude-skills/actions/workflows/validate-plugins.yml/badge.svg)](https://github.com/claude-contrib/claude-skills/actions/workflows/validate-plugins.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+## What are Skills?
+
+Skills are slash commands (e.g. `/commit`, `/review-pr`) that you invoke intentionally to trigger a specific workflow. They differ from:
+
+- **Extensions** ([claude-extensions](https://github.com/claude-contrib/claude-extensions)) — hooks and context rules that run passively
+- **Services** ([claude-services](https://github.com/claude-contrib/claude-services)) — MCP servers providing tools to Claude
 
 ## Installation
 
@@ -19,37 +29,40 @@ Add the marketplace to your Claude Code settings (`~/.claude/settings.json`):
 }
 ```
 
-Then install skills:
+Then install a skill:
 
 ```text
-/plugin install <skill-name>@claude-skills
+/plugin install <plugin-name>@claude-skills
 ```
 
 ## Available Skills
 
-| Skill                                  | Command   | Description                                                   |
-| -------------------------------------- | --------- | ------------------------------------------------------------- |
-| [`commit`](plugins/commit/README.md)   | `/commit` | Create a well-structured git commit with a conventional message |
-
-## What are skills?
-
-Skills are slash commands you invoke intentionally (e.g. `/commit`, `/review-pr`). Each skill is a prompt template that tells Claude how to perform a specific task. Skills differ from:
-
-- **Extensions** (`claude-extensions`) — passive hooks and context rules that run automatically
-- **Services** (`claude-services`) — MCP servers that provide tools Claude uses autonomously
+| Plugin | Command | Description |
+| --- | --- | --- |
+| [`commit`](plugins/commit/README.md) | `/commit` | Create a well-structured git commit with a conventional message |
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add a new skill.
+1. Fork this repository
+2. Create a plugin directory under `plugins/<your-plugin>/`
+3. Add `.claude-plugin/plugin.json`, a `commands/<name>.md` with frontmatter, and a `README.md`
+4. Register your plugin in `.claude-plugin/marketplace.json`
+5. Open a pull request — CI validates the structure automatically
 
-A skill plugin requires:
+### Command frontmatter format
 
+```markdown
+---
+description: Brief description shown in /help
+argument-hint: [optional-arg]
+---
+
+# Command Name
+
+Instructions for Claude...
 ```
-plugins/<skill-name>/
-├── .claude-plugin/plugin.json   # name, version, description, author
-├── skill.md                     # the prompt template (becomes /skill-name)
-└── README.md                    # usage docs
-```
+
+See [docs/](docs/) for plugin development guides.
 
 ## License
 

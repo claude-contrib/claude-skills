@@ -1,7 +1,8 @@
 {
   "name": "claude-skills",
   "owner": {
-    "name": "claude-contrib"
+    "name": "claude-contrib",
+    "email": "claude-contrib@github.com"
   },
   "metadata": {
     "description": "A curated collection of Claude Code skills — slash commands and prompt templates",
@@ -16,18 +17,9 @@
         "name": "claude-contrib"
       },
       "source": "./plugins/commit",
-      "category": "skills",
-      "tags": [
-        "git",
-        "commit",
-        "conventional-commits"
-      ],
-      "keywords": [
-        "git",
-        "commit",
-        "conventional-commits",
-        "version-control"
-      ]
+      "category": "developer-tools",
+      "tags": ["git", "commit", "conventional-commits"],
+      "keywords": ["git", "commit", "conventional-commits", "version-control"]
     }
   ]
 }

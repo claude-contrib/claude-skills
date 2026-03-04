@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "description": "Create a well-structured git commit with a conventional commit message",
   "author": {
-    "name": "claude-contrib"
+    "name": "claude-contrib",
+    "email": "claude-contrib@github.com",
+    "url": "https://github.com/claude-contrib"
   },
+  "homepage": "https://github.com/claude-contrib/claude-skills",
+  "repository": "https://github.com/claude-contrib/claude-skills",
   "license": "MIT",
   "keywords": [
     "git",

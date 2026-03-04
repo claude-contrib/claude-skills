@@ -1,3 +1,10 @@
+---
+description: Create a well-structured git commit following conventional commit conventions
+argument-hint: [message-hint]
+---
+
+# Commit
+
 Create a git commit for the staged changes following conventional commit conventions.
 
 ## Steps
@@ -10,6 +17,7 @@ Create a git commit for the staged changes following conventional commit convent
    - Types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `style`, `perf`, `ci`
    - Keep the subject under 72 characters, imperative mood, no trailing period
    - Add a body only when the "why" isn't obvious from the subject
+   - If `$ARGUMENTS` is provided, use it as a hint for the message
 5. Create the commit using a HEREDOC so special characters are preserved:
    ```
    git commit -m "$(cat <<'EOF'
