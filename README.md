@@ -17,6 +17,12 @@ Type a command in Claude Code. Claude reads the skill's prompt template, execute
 ```
 → Diffs staged changes, checks commit history, writes a conventional commit message, creates the commit.
 
+## Requirements
+
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code/setup) (`claude`)
+
+Install `claude` separately: [Claude Code installation guide](https://docs.anthropic.com/en/docs/claude-code/setup)
+
 ## Quickstart
 
 **1. Register the marketplace** in `~/.claude/settings.json`:
