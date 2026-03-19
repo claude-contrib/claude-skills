@@ -420,7 +420,7 @@ Closes #N
 | No draft plan found on issue       | Stop: "No plan found. Run `/gh-issue-plan N` first."                        |
 | `gh auth status` fails             | Show error, suggest `gh auth login`                                         |
 | Working tree is dirty              | Stop: "Uncommitted changes. Commit or stash before proceeding."             |
-| Not on default branch              | Warn: "You're on '[branch]'. New branch will fork from here. Switch first?" |
+| Not on default branch              | Warn: "You're on '[branch]'. New branch will be created from '[default]'. Switch and pull first?" |
 | Branch already exists (local)      | Ask: "Branch exists. Switch to it, or use a different name?"                |
 | Branch already exists (remote)     | Ask: "Remote branch exists. Fetch it, or use a different name?"             |
 | `git checkout -b` fails            | Show error; suggest checking branch state with `git branch -a`              |
