@@ -92,7 +92,7 @@ Your role: **find the draft plan → expand it into an execution-ready plan → 
   - If no plan found, stop: "No draft plan found on issue #N. Run `/gh-issue-plan N` first to create one."
   - If plan found, extract it for expansion
 - **Check working tree:** If uncommitted changes exist, stop: "You have uncommitted changes. Commit or stash them before running this command."
-- **Check current branch:** If not on default branch, warn: "You're on branch '[name]', not the default branch. The new branch will be created from your current branch. Switch to [default] first, or proceed?"
+- **Check current branch:** If not on default branch, warn: "You're on branch '[name]', not the default branch. The new branch will be created from '[default]'. Your local '[default]' may be behind the remote — switch and pull first, or proceed?"
 - Load session state: check if this develop flow was already started for this issue
 
 ### 2. **Parse Arguments & Plan**
