@@ -67,7 +67,7 @@ Your role: **read the diff → analyze for issues → draft a structured review 
 **User Request (focus area):**
 
 ```
-!`if echo "$ARGUMENTS" | awk '{print $2}' | grep -qxE 'approve|request-changes|comment'; then echo "$ARGUMENTS" | cut -d' ' -f3- | xargs; else echo "$ARGUMENTS" | cut -d' ' -f2- | xargs; fi 2>/dev/null || true`
+!`W2=$(echo "$ARGUMENTS" | awk '{print $2}'); if [ -z "$W2" ]; then true; elif echo "$W2" | grep -qxE 'approve|request-changes|comment'; then echo "$ARGUMENTS" | awk '{$1=$2=""; sub(/^[[:space:]]+/,""); print}'; else echo "$ARGUMENTS" | awk '{$1=""; sub(/^[[:space:]]+/,""); print}'; fi 2>/dev/null || true`
 ```
 
 (Strips the PR number and, if word 2 is a valid outcome keyword, strips it too; remaining text is the focus area.)
