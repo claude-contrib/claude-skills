@@ -45,7 +45,7 @@ Your role: **read the PR → parse context → detect conflicts → draft revise
 **Session State (edit tracking):**
 
 ```
-!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/edit_session.md" 2>/dev/null || true`
+!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/pr_edit_session.md" 2>/dev/null || true`
 ```
 
 **Session Notes (optional, non-authoritative):**

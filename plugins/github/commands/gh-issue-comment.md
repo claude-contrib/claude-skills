@@ -45,7 +45,7 @@ Your role: **read the issue → parse context → detect conflicts → draft a h
 **Session State (comment tracking):**
 
 ```
-!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/comment_session.md" 2>/dev/null || true`
+!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/issue_comment_session.md" 2>/dev/null || true`
 ```
 
 **Session Notes (optional, non-authoritative):**

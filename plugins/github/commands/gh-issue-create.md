@@ -39,7 +39,7 @@ Your role: **parse the description → gather repo context → detect templates 
 **Session State (draft tracking):**
 
 ```
-!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/create_session.md" 2>/dev/null || true`
+!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/issue_create_session.md" 2>/dev/null || true`
 ```
 
 **Session Notes (optional, non-authoritative):**
@@ -261,6 +261,7 @@ _Create this issue, or tell me what to change?_
 - Use the Write tool to save the title to `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_title_draft.txt`
 - Use the Write tool to save the body to `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_body_draft.md`
 - If labels were specified, use the Write tool to save them (one per line) to `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_labels.txt`
+- If an assignee was specified, use the Write tool to save the username to `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_assignee.txt`
 - Update session state: track drafts in this session
 
 ### 10. **Create the Issue**
@@ -275,6 +276,9 @@ if [ -f "${SESSION_DIR}/drafts/issue_labels.txt" ]; then
   while IFS= read -r label; do
     ARGS+=(--label "${label}")
   done < "${SESSION_DIR}/drafts/issue_labels.txt"
+fi
+if [ -f "${SESSION_DIR}/drafts/issue_assignee.txt" ]; then
+  ARGS+=(--assignee "$(tr -d '\n' < "${SESSION_DIR}/drafts/issue_assignee.txt")")
 fi
 gh issue create "${ARGS[@]}"
 ```

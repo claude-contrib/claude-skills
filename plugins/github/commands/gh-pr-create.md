@@ -58,7 +58,7 @@ Your role: **analyze the branch → gather diff and commit context → detect te
 **Session State (draft tracking):**
 
 ```
-!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/create_session.md" 2>/dev/null || true`
+!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/pr_create_session.md" 2>/dev/null || true`
 ```
 
 **Session Notes (optional, non-authoritative):**
@@ -237,6 +237,7 @@ _Create this PR, or tell me what to change?_
 - If a non-default base branch was specified, use the Write tool to save the branch name to `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_base.txt`
 - If labels were specified, use the Write tool to save them (one per line) to `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_labels.txt`
 - If reviewers were specified, use the Write tool to save them (one per line) to `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_reviewers.txt`
+- If an assignee was specified, use the Write tool to save the username to `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_assignee.txt`
 - Update session state: track drafts in this session
 
 ### 10. **Create the PR**
@@ -262,6 +263,9 @@ if [ -f "${SESSION_DIR}/drafts/pr_reviewers.txt" ]; then
   while IFS= read -r reviewer; do
     ARGS+=(--reviewer "${reviewer}")
   done < "${SESSION_DIR}/drafts/pr_reviewers.txt"
+fi
+if [ -f "${SESSION_DIR}/drafts/pr_assignee.txt" ]; then
+  ARGS+=(--assignee "$(tr -d '\n' < "${SESSION_DIR}/drafts/pr_assignee.txt")")
 fi
 gh pr create "${ARGS[@]}"
 ```
