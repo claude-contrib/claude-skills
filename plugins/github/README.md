@@ -121,12 +121,12 @@ Analyzes the diff and organizes findings by severity: **High** (blocks approval)
 |----------|---------|
 | `GH_ISSUE_NUMBER` | Issue commands — identifies the issue to operate on |
 | `GH_PR_NUMBER` | PR commands — identifies the PR to operate on |
-| `GH_CLAUDE_SESSION_DIR` | All commands — root for `drafts/` and `state/` subdirectories |
+| `CLAUDE_SESSION_ID` | All commands — session ID used to derive the session state directory (`~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}`) |
 | `CLAUDE_PLUGIN_ROOT` | All commands — path to jq query files bundled with this plugin |
 
 These variables are set automatically when using `gh claude issue chat` or `gh claude pr chat` sessions. When using commands standalone, set them manually:
 
 ```bash
 export GH_ISSUE_NUMBER=42
-export GH_CLAUDE_SESSION_DIR=/tmp/my-session
+export CLAUDE_SESSION_ID=my-session-id
 ```

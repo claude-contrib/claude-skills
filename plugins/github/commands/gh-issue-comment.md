@@ -20,7 +20,7 @@ Your role: **read the issue → parse context → detect conflicts → draft a h
 
 - `gh` CLI installed and authenticated (`gh auth status` to verify)
 - Environment: `$GH_ISSUE_NUMBER` (set or pass explicitly)
-- Directories: `$GH_CLAUDE_SESSION_DIR` must be writable
+- Directories: `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
 - Write permissions on the repository
 
 ## Context
@@ -40,13 +40,13 @@ Your role: **read the issue → parse context → detect conflicts → draft a h
 **Session State (comment tracking):**
 
 ```
-!`cat "${GH_CLAUDE_SESSION_DIR}/state/comment_session.md" 2>/dev/null || true`
+!`cat "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/comment_session.md" 2>/dev/null || true`
 ```
 
 **Session Notes (optional, non-authoritative):**
 
 ```
-!`cat "${GH_CLAUDE_SESSION_DIR}/state/session_notes.md" 2>/dev/null || true`
+!`cat "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/session_notes.md" 2>/dev/null || true`
 ```
 
 **User Request:**
@@ -173,15 +173,15 @@ _Post this comment, or tell me what to change?_
 
 ### 9. **Save & Track Session State**
 
-- Create the drafts directory: `mkdir -p "${GH_CLAUDE_SESSION_DIR}/drafts"`
-- Use the Write tool to save the comment body to `${GH_CLAUDE_SESSION_DIR}/drafts/issue_comment_draft.md`
+- Create the drafts directory: `mkdir -p "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts"`
+- Use the Write tool to save the comment body to `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_comment_draft.md`
 - Update session state: track comments posted in this session
 
 ### 10. **Post the Comment**
 
 ```bash
 gh issue comment "${GH_ISSUE_NUMBER}" \
-  --body-file "${GH_CLAUDE_SESSION_DIR}/drafts/issue_comment_draft.md"
+  --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_comment_draft.md"
 ```
 
 ### 11. **Confirm Success**

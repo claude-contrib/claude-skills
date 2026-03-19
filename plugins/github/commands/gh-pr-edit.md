@@ -20,7 +20,7 @@ Your role: **read the PR → parse context → detect conflicts → draft revise
 
 - `gh` CLI installed and authenticated (`gh auth status` to verify)
 - Environment: `$GH_PR_NUMBER` (set or pass explicitly)
-- Directories: `$GH_CLAUDE_SESSION_DIR` must be writable
+- Directories: `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
 - Write permissions on the repository
 
 ## Context
@@ -40,13 +40,13 @@ Your role: **read the PR → parse context → detect conflicts → draft revise
 **Session State (edit tracking):**
 
 ```
-!`cat "${GH_CLAUDE_SESSION_DIR}/state/edit_session.md" 2>/dev/null || true`
+!`cat "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/edit_session.md" 2>/dev/null || true`
 ```
 
 **Session Notes (optional, non-authoritative):**
 
 ```
-!`cat "${GH_CLAUDE_SESSION_DIR}/state/session_notes.md" 2>/dev/null || true`
+!`cat "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/session_notes.md" 2>/dev/null || true`
 ```
 
 **User Request:**
@@ -172,18 +172,18 @@ _Apply this edit, or tell me what to change?_
 
 ### 9. **Extract & Save**
 
-- Create the drafts directory: `mkdir -p "${GH_CLAUDE_SESSION_DIR}/drafts"`
+- Create the drafts directory: `mkdir -p "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts"`
 - Extract the **first line** (after `# `) as the title; everything after is the body
-- Write the title to `${GH_CLAUDE_SESSION_DIR}/drafts/pr_title_draft.txt`
-- Write the body to `${GH_CLAUDE_SESSION_DIR}/drafts/pr_body_draft.md`
+- Write the title to `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_title_draft.txt`
+- Write the body to `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_body_draft.md`
 - Update session state: track edits in this session
 
 ### 10. **Apply the Edit**
 
 ```bash
 gh pr edit "${GH_PR_NUMBER}" \
-  --title "$(tr -d '\n' < "${GH_CLAUDE_SESSION_DIR}/drafts/pr_title_draft.txt")" \
-  --body-file "${GH_CLAUDE_SESSION_DIR}/drafts/pr_body_draft.md"
+  --title "$(tr -d '\n' < "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_title_draft.txt")" \
+  --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_body_draft.md"
 ```
 
 ### 11. **Confirm Success**

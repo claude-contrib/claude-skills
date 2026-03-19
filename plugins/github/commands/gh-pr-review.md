@@ -21,7 +21,7 @@ Your role: **read the diff → analyze for issues → draft a structured review 
 
 - `gh` CLI installed and authenticated (`gh auth status` to verify)
 - Environment: `$GH_PR_NUMBER` (set or pass explicitly)
-- Directories: `$GH_CLAUDE_SESSION_DIR` must be writable
+- Directories: `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
 - Write permissions on the repository
 - Git repo with access to local commits (for diff context)
 
@@ -48,7 +48,7 @@ Your role: **read the diff → analyze for issues → draft a structured review 
 **Session Notes (optional, non-authoritative):**
 
 ```
-!`cat "${GH_CLAUDE_SESSION_DIR}/state/session_notes.md" 2>/dev/null || true`
+!`cat "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/session_notes.md" 2>/dev/null || true`
 ```
 
 **User Request (outcome):**
@@ -75,9 +75,9 @@ Your role: **read the diff → analyze for issues → draft a structured review 
 - Edit the PR title or body
 - Create branches, commit, push, or modify source files
 - Run build, test, formatter, linter, or package-manager commands
-- Write local files other than `${GH_CLAUDE_SESSION_DIR}/drafts/pr_review_draft.md` and `${GH_CLAUDE_SESSION_DIR}/state/pr_diff.patch`
+- Write local files other than `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md` and `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/pr_diff.patch`
 
-(Creating the `${GH_CLAUDE_SESSION_DIR}/drafts/` and `${GH_CLAUDE_SESSION_DIR}/state/` directories is allowed.)
+(Creating the `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/` and `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/` directories is allowed.)
 
 ## Workflow
 
@@ -97,9 +97,9 @@ Your role: **read the diff → analyze for issues → draft a structured review 
 ### 3. **Fetch & Analyze Diff**
 
 ```bash
-mkdir -p "${GH_CLAUDE_SESSION_DIR}/state"
-gh pr diff "${GH_PR_NUMBER}" --patch > "${GH_CLAUDE_SESSION_DIR}/state/pr_diff.patch" 2>/dev/null
-git apply --stat < "${GH_CLAUDE_SESSION_DIR}/state/pr_diff.patch" 2>/dev/null || echo "(diffstat unavailable)"
+mkdir -p "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state"
+gh pr diff "${GH_PR_NUMBER}" --patch > "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/pr_diff.patch" 2>/dev/null
+git apply --stat < "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/pr_diff.patch" 2>/dev/null || echo "(diffstat unavailable)"
 ```
 
 - If diff is empty, **stop and inform the user** — do not proceed with review
@@ -190,16 +190,16 @@ _Submit this review, or tell me what to change?_
 
 ### 10. **Save & Submit**
 
-- Create the drafts directory: `mkdir -p "${GH_CLAUDE_SESSION_DIR}/drafts"`
-- Use the Write tool to save the review body (with tracking marker appended) to `${GH_CLAUDE_SESSION_DIR}/drafts/pr_review_draft.md`
+- Create the drafts directory: `mkdir -p "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts"`
+- Use the Write tool to save the review body (with tracking marker appended) to `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md`
 - Submit based on outcome:
   ```bash
   # approve:
-  gh pr review "${GH_PR_NUMBER}" --approve --body-file "${GH_CLAUDE_SESSION_DIR}/drafts/pr_review_draft.md"
+  gh pr review "${GH_PR_NUMBER}" --approve --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
   # OR request-changes:
-  gh pr review "${GH_PR_NUMBER}" --request-changes --body-file "${GH_CLAUDE_SESSION_DIR}/drafts/pr_review_draft.md"
+  gh pr review "${GH_PR_NUMBER}" --request-changes --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
   # OR comment:
-  gh pr review "${GH_PR_NUMBER}" --comment --body-file "${GH_CLAUDE_SESSION_DIR}/drafts/pr_review_draft.md"
+  gh pr review "${GH_PR_NUMBER}" --comment --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
   ```
 
 ### 11. **Confirm Success**
