@@ -61,7 +61,7 @@ The first argument is the issue number. Only the requested changes are applied �
 
 ### `/gh-issue-plan`
 
-Generate a comprehensive TDD-style implementation plan for a GitHub issue and post it as a comment.
+Draft a high-level implementation plan for a GitHub issue and post it as a comment.
 
 ```
 /gh-issue-plan 42
@@ -69,7 +69,20 @@ Generate a comprehensive TDD-style implementation plan for a GitHub issue and po
 /gh-issue-plan 42 focus on the auth module
 ```
 
-The first argument is the issue number. Optional second argument scopes the plan to a focus area. The plan includes: goal, architecture, affected files, task breakdown with estimates (XS/S/M/L), TDD steps (write test → fail → implement → pass → commit), effort summary, and open questions. Idempotent: if a plan comment already exists (identified by a tracking marker), it updates rather than duplicates.
+The first argument is the issue number. Optional second argument scopes the plan to a focus area. The plan is a **human-readable design document** meant for review and iteration — it describes *what* and *why*, not exact code. Includes: goal, approach, affected areas, 3-8 tasks with estimates (XS/S/M/L), dependencies, and open questions. Idempotent: if a plan comment already exists (identified by a tracking marker), it updates rather than duplicates. When the plan is ready, run `/gh-issue-develop N` to promote it to execution.
+
+---
+
+### `/gh-issue-develop`
+
+Promote a draft plan into an execution-ready plan, create a feature branch, and open a draft PR.
+
+```
+/gh-issue-develop 42
+/gh-issue-develop 42 --base develop
+```
+
+The first argument is the issue number. Requires a draft plan posted by `/gh-issue-plan` on the issue. Expands the high-level plan into an execution-ready format (with file paths, acceptance criteria, test strategy, and commit messages per task), creates a branch (`42/slugified-title`), saves the plan to `.claude/plans/`, commits it, and opens a draft PR linking to the issue. Supports `--base` to branch from a non-default branch.
 
 ---
 

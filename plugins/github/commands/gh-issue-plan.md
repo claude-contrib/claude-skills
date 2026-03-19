@@ -1,21 +1,23 @@
 ---
 description: >
-  Drafts a comprehensive, bite-sized implementation plan for the current GitHub
-  issue with TDD-style task breakdown and performance estimates. Posts as comment
-  after explicit user confirmation. Accepts an optional focus area argument to
-  scope the plan.
+  Drafts a high-level implementation plan for a GitHub issue — a human-readable
+  design document meant for review and iteration. Posts as a comment after
+  explicit user confirmation. This is a planning stage; execution happens via
+  /gh-issue-develop once the plan is approved.
 argument-hint: "<issue-number> [focus area or aspect to plan]"
 disable-model-invocation: true
 allowed-tools: Bash(*), Write
 ---
 
-# Draft and Post GitHub Issue Implementation Plans
+# Draft High-Level Implementation Plans
 
-## Mode: PLAN-ONLY → EXECUTION-READY
+## Mode: PLAN-ONLY → HUMAN-REVIEW
 
-Your role: **read the issue → parse context → detect conflicts → draft comprehensive plan with estimates → validate for quality → present for review → incorporate feedback → post the plan.**
+Your role: **read the issue → parse context → detect conflicts → draft a high-level implementation plan → validate for quality → present for review → incorporate feedback → post the plan.**
 
-**Posting the plan** means creating or updating a plan comment. It does NOT mean: implementing anything, writing code, running tests, or making changes to the repo.
+**This is a design document, not an execution script.** The plan should be readable by an engineer in 2-3 minutes, outline the approach clearly enough for review and discussion, and serve as the input for `/gh-issue-develop` when ready.
+
+**Posting the plan** means creating or updating a plan comment. It does NOT mean: implementing anything, writing production code, running tests, or making changes to the repo.
 
 ## Prerequisites
 
@@ -89,7 +91,7 @@ Your role: **read the issue → parse context → detect conflicts → draft com
   - Focus area (e.g., "backend part", "auth flow")
   - Linked issues (e.g., "consider #42", "depends on #15")
   - Branch/PR references (e.g., "like PR #99")
-  - Template hints (e.g., "bug fix", "feature", "refactor", "migration")
+  - Plan type hints (e.g., "bug fix", "feature", "refactor", "migration")
 
 - **Auto-fetch linked context:**
 
@@ -100,10 +102,6 @@ Your role: **read the issue → parse context → detect conflicts → draft com
   # If user mentions PR #Y, fetch it:
   gh pr view Y --json title,body,commits
   ```
-
-- **Detect issue template:**
-  - Check `.github/ISSUE_TEMPLATE/` for bug/feature/etc templates
-  - If repo has structured templates, align plan to their sections
 
 - **Resume option:**
   - If session state shows unsaved draft for this issue, ask: "You have a draft plan for #N from [timestamp]. Resume, start fresh, or discard?"
@@ -118,7 +116,6 @@ Your role: **read the issue → parse context → detect conflicts → draft com
   Linked issues: #15 (database schema), #42 (auth system)
   Depends on: PR #99 (utils refactor)
   Labels: bug, high-priority
-  Template: Feature request
   ```
 
 ### 4. **Detect Conflicts & Contradictions**
@@ -130,6 +127,7 @@ Your role: **read the issue → parse context → detect conflicts → draft com
 - **Dependency issues:** If linked issue #15 is blocked or closed, flag it
 - **Working tree conflicts:** If local changes match issue scope, note: "Local changes in [files] may relate to this"
 - **Session conflicts:** If earlier draft in session contradicts current intent, ask: "Earlier you planned this as frontend-only, now backend. Start fresh?"
+- **Existing plan:** If a plan comment already exists (tracking marker found), note: "A plan already exists. This will update it."
 
 **If conflicts detected:**
 
@@ -137,111 +135,84 @@ Your role: **read the issue → parse context → detect conflicts → draft com
 - Ask user to confirm: "Proceed anyway?" or "Let me know what changed"
 - Do NOT proceed without confirmation
 
-### 5. **Draft the Comprehensive Plan**
+### 5. **Draft the High-Level Plan**
 
-Write the plan following this structure:
+Write a concise, human-readable plan following this structure. **This is a design document — describe the approach, not the exact code.** Keep the entire plan readable in 2-3 minutes.
 
-#### **Plan Header**
+#### **Plan Structure**
 
 ```markdown
-# [Feature Name] Implementation Plan
+<!-- gh-claude:issue-plan issue=${ISSUE_NUM} -->
 
-**For Issue:** [#issue-number](repo_url/issues/issue-number)
+# [Feature/Fix Name] — Implementation Plan
 
-**Goal:** [One sentence: what this builds]
-
-**Architecture:** [2-3 sentences explaining the approach and key design decisions]
-
-**Tech Stack:** [Key technologies, libraries, frameworks relevant to this work]
-
-**Key Principles:** DRY, YAGNI, TDD, frequent commits
-
-**Performance Estimate:** [Overall: Small (1-2 days) | Medium (3-5 days) | Large (1+ weeks)]
-
-**Risk Factors:** [High: database migration | Medium: API changes | Low: internal utilities]
+**Issue:** [#N](url) — [title]
+**Type:** [Bug Fix | Feature | Refactor | Migration | Security | Documentation]
+**Estimate:** [Small (1-2 days) | Medium (3-5 days) | Large (1+ weeks)]
+**Risk:** [Low | Medium | High] — [one-line reason if >Low]
 
 ---
-```
 
-#### **Likely Affected Areas**
+## Goal
 
-```markdown
-## Likely Affected Areas
+[2-3 sentences: what this achieves and why it matters]
 
-- [`path/to/file.ext`](repo_url/blob/branch/path/to/file.ext) — reason why
-- [`path/to/module.ext:123-145`](repo_url/blob/branch/path/to/module.ext#L123-L145) — specific reason
-```
+## Approach
 
-#### **Task Structure (TDD-Style, Bite-Sized with Estimates)**
+[3-5 sentences: the high-level strategy, key design decisions, and why this
+approach was chosen over alternatives. Mention patterns, libraries, or
+architectural choices.]
 
-For plans with 8+ tasks, use descriptive steps with key code snippets instead of complete code for every step — keep the GitHub comment readable.
+## Affected Areas
 
-````markdown
-### Task N: [Component or Feature Name] — [Size: XS/S/M/L]
+- `path/to/file.ext` — [why]
+- `path/to/module/` — [why]
+- `tests/path/to/` — [new tests needed for what]
 
-**Estimate:** [Task size] (XS=15min, S=30min, M=1-2hr, L=2-4hr)
-**Risk:** [Low/Medium/High] — reason if >Low
-**Files:**
+## Tasks
 
-- Create: `exact/path/to/new_file.py`
-- Modify: `exact/path/to/existing.py:123-145`
-- Test: `tests/path/to/test_file.py`
+### 1. [Task name] — [XS/S/M/L]
 
-**Step 1: Write the failing test**
+[2-4 sentences: what this task does, what files it touches, what the test
+strategy is. Describe the change, not the code.]
 
-[COMPLETE TEST CODE]
+### 2. [Task name] — [XS/S/M/L]
 
-**Step 2: Run test to verify it fails**
+[2-4 sentences]
 
-Run: `pytest tests/path/to/test.py::test_name -v`
+### 3. [Task name] — [XS/S/M/L]
 
-Expected: FAIL
+[2-4 sentences]
 
-**Step 3: Write minimal implementation**
+## Task Dependencies
 
-[COMPLETE IMPLEMENTATION CODE]
+[Which tasks depend on others, or note "all tasks are independent" if true.
+Show critical path if relevant: Task 1 → Task 3 (others parallel)]
 
-**Step 4: Run test to verify it passes**
-
-Run: `pytest tests/path/to/test.py::test_name -v`
-
-Expected: PASS
-
-**Step 5: Commit**
-
-```bash
-git add tests/path/to/test.py src/path/to/file.py
-git commit -m "feat: add component feature"
-```
-````
-
-#### **Summary Section**
-
-````markdown
-## Effort Summary
-
-- **Total estimate:** 5-7 hours (Medium)
-- **By task:** Task 1 (S), Task 2 (M), Task 3 (S), Task 4 (L), Task 5 (XS)
-- **Risk areas:** Task 4 (database changes require care)
-- **Critical path:** Task 1 → Task 4 (others parallel)
-- **Approx timeline:** 1 day for experienced engineer, 2-3 days for new to codebase
-````
-
-#### **Open Questions & Dependencies**
-
-```markdown
 ## Open Questions
 
-- {Specific question that must be clarified}
-- {Missing information that affects approach}
+- [Genuine question that must be answered before or during implementation]
+- [Missing context that affects the approach]
 
 ## Dependencies & Blockers
 
-- Requires PR #99 to be merged first
-- Database schema change in #15 must be applied
+- [External dependency, e.g., "Requires PR #99 to be merged first"]
+- [Or "None"]
+
+---
+
+_Plan ready? Run `/gh-issue-develop N` to promote to execution._
 ```
 
-(Omit sections if none exist.)
+#### **Content rules:**
+
+- **Describe, don't prescribe:** Say "Add a validation middleware that checks JWT expiry" not "Create file `src/middleware/auth.py` with the following code..."
+- **Task descriptions, not step-by-step instructions:** Each task is 2-4 sentences explaining _what_ and _why_, not _how_ line-by-line
+- **No code blocks in the plan** unless a brief snippet (under 5 lines) is essential to convey a non-obvious API or pattern choice
+- **Estimates per task:** T-shirt sizes (XS=15min, S=30min, M=1-2hr, L=2-4hr)
+- **Total 3-8 tasks** for most plans; if more are needed, the issue should probably be split
+- **Open Questions are real:** Only list genuine unknowns; don't fabricate questions to fill the section
+- **Tracking marker** at the top: `<!-- gh-claude:issue-plan issue=${ISSUE_NUM} -->` (used by `/gh-issue-develop` to find this plan)
 
 ### 6. **Validate Plan for Quality**
 
@@ -249,22 +220,21 @@ Before presenting to user, conduct a validation review:
 
 **Check:**
 
-| Check                    | Validation                                          | Action if Failed                                        |
-| ------------------------ | --------------------------------------------------- | ------------------------------------------------------- |
-| **Actionability**        | All tasks are concrete (no vague language)?          | Replace vague steps with specific code/commands          |
-| **Completeness**         | Each step has complete code/commands, not prose?     | Add full code blocks; no `...` or pseudocode             |
-| **File paths**           | Exact paths from repo root, hyperlinked?             | Fix paths and add GitHub links                           |
-| **Expected outputs**     | Verification steps show what success looks like?     | Add expected output for each test/run step               |
-| **Commit messages**      | Logical and follow semantic messaging?               | Revise to match repo conventions                         |
-| **TDD structure**        | Test -> fail -> implement -> pass -> commit?         | Reorder steps to follow TDD cycle                        |
-| **No placeholders**      | No TODOs, `...`, or incomplete sections?             | Fill in all placeholders before presenting               |
-| **Task sequence**        | Logical order with no circular dependencies?         | Reorder tasks to respect dependency chain                |
-| **Effort estimates**     | Realistic and consistent across tasks?               | Adjust sizes; flag uncertainty in Open Questions         |
-| **Risk flags**           | Accurate severity (not over/under-flagged)?          | Calibrate to actual impact                               |
-| **Followability**        | An engineer new to codebase could follow this?       | Add context or simplify steps that assume prior knowledge |
-| **Open Questions**       | Real blockers captured; nothing fabricated?           | Remove speculative questions; add genuine unknowns       |
+| Check                     | Validation                                                | Action if Failed                                         |
+| ------------------------- | --------------------------------------------------------- | -------------------------------------------------------- |
+| **Readability**           | Can an engineer read this in 2-3 minutes?                 | Cut length; consolidate tasks; remove unnecessary detail |
+| **Clarity**               | Each task clearly describes what changes and why?         | Rewrite vague tasks with specific intent                 |
+| **No code dumps**         | No large code blocks (>5 lines)?                          | Replace with descriptive prose                           |
+| **Estimates present**     | Every task has a size; total estimate in header?          | Add missing estimates                                    |
+| **Affected areas**        | File paths are real (from repo), not invented?            | Verify paths exist or mark as "new file"                 |
+| **Task count**            | 3-8 tasks? If more, recommend splitting the issue         | Consolidate or suggest split                             |
+| **Open Questions**        | Only genuine unknowns, nothing fabricated?                | Remove speculative questions                             |
+| **Dependencies**          | Task order makes sense; no circular dependencies?         | Reorder tasks                                            |
+| **Risk calibration**      | Risk level matches what's actually being touched?         | Adjust risk and explain                                  |
+| **Tracking marker**       | `<!-- gh-claude:issue-plan issue=N -->` present at top?   | Add marker                                               |
+| **Actionable by develop** | Plan has enough detail for `/gh-issue-develop` to expand? | Add architectural context or design notes                |
 
-**If any check fails:** Revise the draft before step 7. Do NOT proceed with incomplete plan.
+**If any check fails:** Revise the draft before step 7. Do NOT proceed with a flawed plan.
 
 ### 7. **Present for Review**
 
@@ -274,7 +244,8 @@ Show the draft plan clearly with session context:
 ---
 **Draft implementation plan for issue #N: [Title]**
 
-**Session context:** This is draft #2 in this session (1 edited earlier)
+**Session context:** This is draft #1 in this session
+**Next step:** When approved, run `/gh-issue-develop N` to begin execution
 
 [FULL PLAN CONTENT]
 
@@ -296,7 +267,6 @@ _Looks good to post, or what should I change?_
 - Create the drafts directory: `mkdir -p "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts"`
 - Use the Write tool to save the plan to `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft.md`
 - Update session state file with: issue number, plan status, timestamp, posted URL (once posted)
-- Format: track all drafts/posts in this session for context in future calls
 
 ### 10. **Post or Update Comment**
 
@@ -316,48 +286,36 @@ _Looks good to post, or what should I change?_
 ### 11. **Confirm Success**
 
 - On success: Show the posted/updated comment URL and confirm whether it was created or updated
+- Remind user: "When the plan is ready, run `/gh-issue-develop N` to begin execution."
 - On failure: Display the full error and suggest `gh auth status`
 
 ---
 
 ## Rules & Guidelines
 
-### Planning Style & Audience
+### Plan Philosophy
 
-- **Audience:** Write assuming an engineer with zero codebase knowledge but solid development skills
-- **Tone:** Plain English, conversational; explain _why_ not just _what_
-- **Task granularity:** Each step takes 2-5 minutes; break large steps into smaller ones
-- **Completeness:** Include complete code, exact commands, expected outputs; no vagueness
-- **Honesty:** If you lack info, say so in Open Questions; don't invent details
-- **Scope awareness:** If issue spans multiple independent areas, ask before planning all
-
-### Performance Estimates
-
-- **T-shirt sizing:** XS (15min), S (30min), M (1-2hr), L (2-4hr), XL (4-8hr), XXL (1+ day)
-- **Why it matters:** User can gauge effort and prioritize
-- **Risk flags:** Mark tasks touching: database schema, API contracts, security, core utilities
-- **Critical path:** If tasks have dependencies, note which chain is longest
-- **Totals:** Always provide both individual estimates AND total at bottom
-
-### Code & Commands in Plans
-
-- **Every code block must be complete:** No `...`, no "add this to that", no pseudocode
-- **Exact file paths:** Always use full paths from repo root
-- **Exact commands:** Show the full command and expected output/error
-- **Expected outputs:** Show what success looks like: `PASSED`, `green`, specific output
-- **Line references:** When modifying existing code, include line numbers: `path/to/file.py:123-145`
-- **Test-first:** Lead with the failing test, then implementation
+- **This is a design document, not a build script.** It should communicate intent, approach, and scope — not exact code.
+- **Audience:** An engineer (or the author themselves, later) who needs to understand _what_ will change and _why_ before diving into implementation.
+- **Iteration is expected:** Plans will go through 1-3 rounds of feedback before execution. Keep them easy to revise.
+- **The plan feeds `/gh-issue-develop`:** Include enough architectural detail that the execution stage can expand tasks into concrete code without re-analyzing the issue from scratch.
 
 ### Content & Structure
 
-- **Header required:** Every plan starts with Goal, Architecture, Tech Stack, Principles, Effort, Risk
-- **Performance section mandatory:** Effort Summary with individual + total estimates
-- **Likely Affected Areas:** Hyperlink files on GitHub with line anchors when specific lines are known
-- **Tasks labeled sequentially:** `Task 1:`, `Task 2:`, etc.; each has Size, Risk, Files
-- **Files section per task:** Explicit list of Create/Modify/Test files with line numbers
-- **Steps numbered 1-5:** Write test → Verify fail → Implement → Verify pass → Commit
-- **Open Questions & Dependencies:** List anything blocking implementation; omit if none
-- **Tracking marker:** Always append at the end: `<!-- gh-claude:issue-plan issue=${ISSUE_NUM} -->`
+- **Header required:** Every plan starts with Issue, Type, Estimate, Risk
+- **Goal + Approach required:** What and why, 5-8 sentences total
+- **Affected Areas:** Real file paths from the repo; mark new files as "(new)"
+- **Tasks:** 3-8 tasks, each 2-4 sentences, with T-shirt size
+- **No code blocks** unless a brief snippet (<5 lines) is essential to convey a pattern choice
+- **Open Questions & Dependencies:** Only genuine items; omit sections if empty
+- **Tracking marker:** Always at the top: `<!-- gh-claude:issue-plan issue=${ISSUE_NUM} -->`
+
+### Estimates
+
+- **T-shirt sizing:** XS (15min), S (30min), M (1-2hr), L (2-4hr)
+- **Total in header:** Small (1-2 days) | Medium (3-5 days) | Large (1+ weeks)
+- **Risk flags:** Mark tasks touching: database schema, API contracts, security, core utilities
+- **Task dependencies:** Note critical path if tasks have ordering constraints
 
 ### Safety & Scope Boundaries
 
@@ -373,7 +331,6 @@ _Looks good to post, or what should I change?_
 - **Labels & urgency:** Consider labels (bug, feature, urgent, security) when ordering tasks
 - **Existing discussions:** Reference prior comments if they inform approach
 - **Repository context:** Use language/framework/conventions of the repo
-- **Dependencies:** Respect task ordering; earlier tasks shouldn't depend on later ones
 - **Linked issues:** Auto-fetch and reference them; note if they're blocking
 
 ### Edge Cases
@@ -382,7 +339,6 @@ _Looks good to post, or what should I change?_
 - **Too little context:** Use Open Questions section; don't invent details
 - **Existing plan comment:** Find and update it (don't create duplicate)
 - **Multiple focus areas:** Ask if user wants all or a specific area
-- **Ambiguous requirements:** Flag in Open Questions; request clarification
 - **Vague issue:** If issue doesn't explain what to build, ask before drafting
 - **Closed issue:** Note state and confirm before planning
 
@@ -390,32 +346,30 @@ _Looks good to post, or what should I change?_
 
 ## Error Messages & Recovery
 
-| Scenario                          | Action                                                          |
-| --------------------------------- | --------------------------------------------------------------- |
-| Issue number missing from arguments | Ask user: "Which issue? Pass the number as the first argument, e.g. `/gh-issue-plan 42 ...`" |
-| `gh issue view` fails             | Show error, suggest `gh auth status`                            |
-| Git unavailable                   | Skip working-tree check, proceed without that context           |
-| Issue context unclear             | Use Open Questions; ask user to clarify before drafting         |
-| User wants to split scope         | Ask which part to plan; restart from step 3                     |
-| Comment API call fails            | Show full error, ask user to retry or cancel                    |
-| Posting/updating fails            | Show error, suggest `gh auth status`                            |
-| Plan has gaps                     | Revise and return to step 6; do NOT present incomplete plan     |
-| Existing plan found               | Update it instead of creating duplicate                         |
-| Conflict detected                 | Show conflict, ask user to confirm before proceeding            |
-| Linked issue unavailable          | Note it, continue with what you have                            |
-| Performance estimates unrealistic | Revise after user feedback in step 8                            |
+| Scenario                            | Action                                                  |
+| ----------------------------------- | ------------------------------------------------------- |
+| Issue number missing from arguments | Ask user: "Which issue? e.g. `/gh-issue-plan 42 ...`"   |
+| `gh issue view` fails               | Show error, suggest `gh auth status`                    |
+| Git unavailable                     | Skip working-tree check, proceed without that context   |
+| Issue context unclear               | Use Open Questions; ask user to clarify before drafting |
+| User wants to split scope           | Ask which part to plan; restart from step 3             |
+| Posting/updating fails              | Show error, suggest `gh auth status`                    |
+| Plan too long (>8 tasks)            | Recommend splitting the issue; ask how to proceed       |
+| Existing plan found                 | Update it instead of creating duplicate                 |
+| Conflict detected                   | Show conflict, ask user to confirm before proceeding    |
+| Linked issue unavailable            | Note it, continue with what you have                    |
 
 ---
 
-## Template Library
+## Plan Type Templates
 
-Pick the closest template type and adapt the plan accordingly.
+Pick the closest type and adapt the plan accordingly.
 
-| Type | Tasks | Estimate | Focus |
-| --- | --- | --- | --- |
-| **Bug Fix** | 2-4 | Small (1-2 days) | Reproduction, root cause, fix, regression tests |
-| **Feature** | 4-6 | Medium (3-5 days) | Tests, implementation, integration, edge cases |
-| **Refactor** | 3-5 | Medium (2-4 days) | Test coverage first, gradual refactor, validate equivalence |
-| **Migration** | 5-8 | Large (1+ weeks) | Compatibility layer, gradual migration, deprecation, cleanup |
-| **Security** | 2-4 | Medium (1-3 days) | Minimal changes, comprehensive tests, audit trail (High risk) |
-| **Documentation** | 2-3 | Small (1-2 days) | Example code that runs, clear prose, audience-appropriate |
+| Type              | Typical Tasks | Estimate          | Focus                                                         |
+| ----------------- | ------------- | ----------------- | ------------------------------------------------------------- |
+| **Bug Fix**       | 2-4           | Small (1-2 days)  | Reproduction, root cause, fix, regression tests               |
+| **Feature**       | 4-6           | Medium (3-5 days) | Tests, implementation, integration, edge cases                |
+| **Refactor**      | 3-5           | Medium (2-4 days) | Test coverage first, gradual refactor, validate equivalence   |
+| **Migration**     | 5-8           | Large (1+ weeks)  | Compatibility layer, gradual migration, deprecation, cleanup  |
+| **Security**      | 2-4           | Medium (1-3 days) | Minimal changes, comprehensive tests, audit trail (High risk) |
+| **Documentation** | 2-3           | Small (1-2 days)  | Example code that runs, clear prose, audience-appropriate     |
