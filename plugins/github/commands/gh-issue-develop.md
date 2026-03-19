@@ -270,17 +270,23 @@ _Proceed, or tell me what to change?_
 
 ### 8. **Execute: Branch, Save, Commit, PR**
 
-Run the following steps in order. If any step fails, stop and show the error — do NOT continue with partial state.
+Run the following sub-steps in order. If any fails, stop and show the error — do NOT continue with partial state.
 
-All variables are derived explicitly from `$ARGUMENTS` and `gh` CLI — no placeholders.
+**8a. Derive variables and create branch:**
 
 ```bash
 # Derive all variables from arguments and issue context
-# Note: SKIP_BRANCH_CREATION and BRANCH_NAME may already be set from step 1
-# branch detection. If the current branch matches the issue number,
-# SKIP_BRANCH_CREATION=true and BRANCH_NAME is the current branch name.
 ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#')
 SESSION_DIR="${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}"
+
+# Detect if current branch already matches this issue
+CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "")
+SKIP_BRANCH_CREATION=false
+if echo "${CURRENT_BRANCH}" | grep -qE "(^|[^0-9])${ISSUE_NUM}([^0-9]|$)"; then
+  SKIP_BRANCH_CREATION=true
+  BRANCH_NAME="${CURRENT_BRANCH}"
+fi
+
 ISSUE_TITLE=$(gh issue view "${ISSUE_NUM}" --json title --jq .title 2>/dev/null)
 TITLE_SLUG=$(echo "${ISSUE_TITLE}" | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-' | sed 's/^-//;s/-$//' | cut -c1-50)
 if [ "${SKIP_BRANCH_CREATION}" != "true" ]; then
@@ -291,30 +297,37 @@ BASE_BRANCH="${DEFAULT_BRANCH}"
 MAYBE_BASE=$(echo "$ARGUMENTS" | awk '{for(i=1;i<=NF;i++) if($i=="--base") print $(i+1)}')
 if [ -n "${MAYBE_BASE}" ]; then BASE_BRANCH="${MAYBE_BASE}"; fi
 
-# Step 1: Create and switch to the new branch (skip if already on a matching branch)
+# Create and switch to the new branch (skip if already on a matching branch)
 if [ "${SKIP_BRANCH_CREATION}" != "true" ]; then
   git checkout -b "${BRANCH_NAME}" "${BASE_BRANCH}"
 fi
-
-# Step 2: Create plans directory
 mkdir -p .github/claude/plans
-# >>> Use Write tool to save the execution plan to .github/claude/plans/${ISSUE_NUM}-${TITLE_SLUG}.md
+```
 
-# Step 3: Commit the plan
+**8b. Save execution plan to repo:**
+
+Use the Write tool to save the execution plan to `.github/claude/plans/${ISSUE_NUM}-${TITLE_SLUG}.md`
+
+**8c. Commit the plan:**
+
+```bash
 git add .github/claude/plans/
 git commit -m "docs(plan): add execution plan for #${ISSUE_NUM}"
+```
 
-# Step 4: Save PR body and create draft PR
-mkdir -p "${SESSION_DIR}/drafts"
-# >>> Use Write tool to save the PR body to ${SESSION_DIR}/drafts/develop_pr_body.md
+**8d. Save PR body:**
+
+Use the Write tool to save the PR body to `${SESSION_DIR}/drafts/develop_pr_body.md` (create the directory first: `mkdir -p "${SESSION_DIR}/drafts"`)
+
+**8e. Create draft PR:**
+
+```bash
 gh pr create \
   --draft \
   --title "[WIP] ${ISSUE_TITLE}" \
   --body-file "${SESSION_DIR}/drafts/develop_pr_body.md" \
   --base "${BASE_BRANCH}"
 ```
-
-Steps 2 and 4 require switching to the Write tool between bash commands. Run the bash commands in sequence, using Write where indicated by `>>>` markers.
 
 **Draft PR body structure** (save to `${SESSION_DIR}/drafts/develop_pr_body.md` before running `gh pr create`):
 
