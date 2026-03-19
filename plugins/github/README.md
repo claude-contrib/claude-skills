@@ -17,6 +17,20 @@ Each command follows a **draft → iterate → confirm → execute** workflow. N
 
 ## Commands
 
+### `/gh-issue-create`
+
+Draft and create a new GitHub issue with a structured title and body.
+
+```
+/gh-issue-create login page returns 500 error on expired sessions
+/gh-issue-create add dark mode support to settings page --label enhancement
+/gh-issue-create label:bug,urgent search results are empty for non-ASCII queries
+```
+
+The entire argument is the issue description. Labels can be passed with `--label label1,label2` or `label:name` prefixes. If the repo has `.github/ISSUE_TEMPLATE/` templates, the best match is auto-detected and offered. The body is structured by issue type (bug, feature, general) with appropriate sections (Steps to Reproduce, Acceptance Criteria, etc.).
+
+---
+
 ### `/gh-issue-comment`
 
 Draft and post a comment on a GitHub issue.

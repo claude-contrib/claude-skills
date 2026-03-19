@@ -59,7 +59,7 @@ Your role: **read the issue → parse context → detect conflicts → draft com
 **Repository Info:**
 
 ```
-!`gh repo view --json url,defaultBranchRef,languages,description --jq '"URL: \(.url)\nDefault branch: \(.defaultBranchRef.name)\nLanguages: \(.languages | map(.name) | join(", "))\nDescription: \(.description)"' 2>/dev/null || echo "Unable to fetch repo info."`
+!`gh repo view --json url,defaultBranchRef,languages,description 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_repo_view.jq" || echo "Unable to fetch repo info."`
 ```
 
 **User Request:**
