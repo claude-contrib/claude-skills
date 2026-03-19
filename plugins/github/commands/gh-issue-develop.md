@@ -93,6 +93,10 @@ Your role: **find the draft plan → expand it into an execution-ready plan → 
   - If plan found, extract it for expansion
 - **Check working tree:** If uncommitted changes exist, stop: "You have uncommitted changes. Commit or stash them before running this command."
 - **Check current branch:** If not on default branch, warn: "You're on branch '[name]', not the default branch. The new branch will be created from '[default]'. Your local '[default]' may be behind the remote — switch and pull first, or proceed?"
+- **Detect matching branch:** Check if the current branch name contains the issue number as a distinct segment (e.g., for issue 42: `42/fix-login`, `issue-42`, `fix/42-login`, `42-fix-login` all match). If the current branch matches:
+  - Skip branch creation entirely in step 8
+  - Note in step 6: "Using current branch '[name]' (matches issue #N)"
+  - If the current branch does NOT match and is not the default branch, warn as before
 - Load session state: check if this develop flow was already started for this issue
 
 ### 2. **Parse Arguments & Plan**
@@ -113,6 +117,7 @@ Your role: **find the draft plan → expand it into an execution-ready plan → 
 
 ### 3. **Generate Branch Name**
 
+- **If current branch already matches the issue** (detected in step 1), skip branch name generation entirely. Use the current branch as-is.
 - Derive branch name from issue number and title:
   ```
   Format: <issue-number>/<slugified-title>
@@ -241,8 +246,8 @@ Show what will happen:
 **Ready to begin development for issue #N: [Title]**
 
 **Actions I will take:**
-1. Create branch: `42/fix-login-500-error` from `main`
-2. Save execution plan to: `.claude/plans/42-fix-login-500-error.md`
+1. Create branch: `42/fix-login-500-error` from `main` (or "Using existing branch: `issue-42`" if current branch matches)
+2. Save execution plan to: `.github/claude/plans/42-fix-login-500-error.md`
 3. Commit: `docs(plan): add execution plan for #42`
 4. Push branch and open draft PR
 
@@ -271,25 +276,32 @@ All variables are derived explicitly from `$ARGUMENTS` and `gh` CLI — no place
 
 ```bash
 # Derive all variables from arguments and issue context
+# Note: SKIP_BRANCH_CREATION and BRANCH_NAME may already be set from step 1
+# branch detection. If the current branch matches the issue number,
+# SKIP_BRANCH_CREATION=true and BRANCH_NAME is the current branch name.
 ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#')
 SESSION_DIR="${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}"
 ISSUE_TITLE=$(gh issue view "${ISSUE_NUM}" --json title --jq .title 2>/dev/null)
 TITLE_SLUG=$(echo "${ISSUE_TITLE}" | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-' | sed 's/^-//;s/-$//' | cut -c1-50)
-BRANCH_NAME="${ISSUE_NUM}/${TITLE_SLUG}"
+if [ "${SKIP_BRANCH_CREATION}" != "true" ]; then
+  BRANCH_NAME="${ISSUE_NUM}/${TITLE_SLUG}"
+fi
 DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null || echo "main")
 BASE_BRANCH="${DEFAULT_BRANCH}"
 MAYBE_BASE=$(echo "$ARGUMENTS" | awk '{for(i=1;i<=NF;i++) if($i=="--base") print $(i+1)}')
 if [ -n "${MAYBE_BASE}" ]; then BASE_BRANCH="${MAYBE_BASE}"; fi
 
-# Step 1: Create and switch to the new branch
-git checkout -b "${BRANCH_NAME}" "${BASE_BRANCH}"
+# Step 1: Create and switch to the new branch (skip if already on a matching branch)
+if [ "${SKIP_BRANCH_CREATION}" != "true" ]; then
+  git checkout -b "${BRANCH_NAME}" "${BASE_BRANCH}"
+fi
 
 # Step 2: Create plans directory
-mkdir -p .claude/plans
-# >>> Use Write tool to save the execution plan to .claude/plans/${ISSUE_NUM}-${TITLE_SLUG}.md
+mkdir -p .github/claude/plans
+# >>> Use Write tool to save the execution plan to .github/claude/plans/${ISSUE_NUM}-${TITLE_SLUG}.md
 
 # Step 3: Commit the plan
-git add .claude/plans/
+git add .github/claude/plans/
 git commit -m "docs(plan): add execution plan for #${ISSUE_NUM}"
 
 # Step 4: Save PR body and create draft PR
@@ -313,7 +325,7 @@ Execution plan for #N: [title]
 
 ## Plan
 
-See [`.claude/plans/N-slug.md`](link) for the full execution plan.
+See [`.github/claude/plans/N-slug.md`](link) for the full execution plan.
 
 ## Status
 
@@ -324,7 +336,7 @@ See [`.claude/plans/N-slug.md`](link) for the full execution plan.
 ## Notes
 
 - This PR was created by `/gh-issue-develop` from the approved implementation plan
-- Plan is in `.claude/plans/` and can be updated as implementation progresses
+- Plan is in `.github/claude/plans/` and can be updated as implementation progresses
 
 Closes #N
 ```
@@ -338,14 +350,14 @@ Closes #N
   Development environment ready for issue #N
 
   Branch:  42/fix-login-500-error
-  Plan:    .claude/plans/42-fix-login-500-error.md
+  Plan:    .github/claude/plans/42-fix-login-500-error.md
   PR:      #M (draft) — [URL]
 
   Next steps:
-  - Review the execution plan in .claude/plans/
+  - Review the execution plan in .github/claude/plans/
   - Implement tasks in order
   - Update task checkboxes as you complete them
-  - Before marking PR as ready, clean up .claude/plans/ or keep as documentation
+  - Before marking PR as ready, clean up .github/claude/plans/ or keep as documentation
   - Mark PR as ready for review when done
   ```
 
@@ -375,9 +387,9 @@ Closes #N
 - **Always draft PR:** The PR starts as draft; engineer marks ready when done
 - **PR links to issue:** Body includes `Closes #N`
 - **PR body is minimal:** Points to the plan file; includes task checklist for at-a-glance status
-- **Plan lives in repo:** `.claude/plans/` directory, committed with the branch
+- **Plan lives in repo:** `.github/claude/plans/` directory, committed with the branch
 - **Standardized PR format:** This command uses a fixed PR body (plan link + task checklist). Repo PR templates are not applied — the develop PR is a scaffold, not a final description. The engineer can update it before marking ready.
-- **Plan lifecycle:** The plan file in `.claude/plans/` is useful during development. Before marking the PR as ready, the engineer may remove it in a cleanup commit or keep it as project documentation — this is a team preference.
+- **Plan lifecycle:** The plan file in `.github/claude/plans/` is useful during development. Before marking the PR as ready, the engineer may remove it in a cleanup commit or keep it as project documentation — this is a team preference.
 
 ### Safety & Permissions
 
@@ -396,6 +408,7 @@ Closes #N
 - **Not on default branch:** Warn and confirm
 - **Plan was updated since last read:** Always fetch fresh from the issue comment
 - **PR already exists for a branch with same name:** Note and ask how to proceed
+- **Already on matching branch:** Skip branch creation; use current branch. Note this in the confirmation step.
 
 ---
 
@@ -418,4 +431,5 @@ Closes #N
 | Plan has unresolved dependencies   | Warn: "Dependency PR #N is still open. Proceed anyway?"                     |
 | Issue is closed                    | Warn: "Issue #N is closed. Still create development branch?"                |
 | Validation detects issues          | Revise in step 5; do NOT present flawed execution plan                      |
+| Already on matching branch         | Skip branch creation; note "Using current branch '[name]'" in confirmation |
 | User interrupts during execution   | Show which steps completed; suggest recovery for partial state              |
