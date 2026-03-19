@@ -265,41 +265,44 @@ _Proceed, or tell me what to change?_
 
 ### 8. **Execute: Branch, Save, Commit, PR**
 
-Run the following steps. If any step fails, stop and show the error — do NOT continue with partial state.
+Run the following steps in order. If any step fails, stop and show the error — do NOT continue with partial state.
+
+All variables are derived explicitly from `$ARGUMENTS` and `gh` CLI — no placeholders.
 
 ```bash
+# Derive all variables from arguments and issue context
 ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#')
 SESSION_DIR="${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}"
+ISSUE_TITLE=$(gh issue view "${ISSUE_NUM}" --json title --jq .title 2>/dev/null)
+TITLE_SLUG=$(echo "${ISSUE_TITLE}" | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-' | sed 's/^-//;s/-$//' | cut -c1-50)
+BRANCH_NAME="${ISSUE_NUM}/${TITLE_SLUG}"
+DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null || echo "main")
+BASE_BRANCH="${DEFAULT_BRANCH}"
+MAYBE_BASE=$(echo "$ARGUMENTS" | awk '{for(i=1;i<=NF;i++) if($i=="--base") print $(i+1)}')
+if [ -n "${MAYBE_BASE}" ]; then BASE_BRANCH="${MAYBE_BASE}"; fi
 
 # Step 1: Create and switch to the new branch
-DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null || echo "main")
-# Use --base if provided, otherwise default branch
-BASE_BRANCH="${USER_SPECIFIED_BASE:-$DEFAULT_BRANCH}"
 git checkout -b "${BRANCH_NAME}" "${BASE_BRANCH}"
-```
 
-```bash
-# Step 2: Create plans directory and save the execution plan
+# Step 2: Create plans directory
 mkdir -p .claude/plans
-# (Use Write tool to save the execution plan to .claude/plans/${ISSUE_NUM}-${TITLE_SLUG}.md)
-```
+# >>> Use Write tool to save the execution plan to .claude/plans/${ISSUE_NUM}-${TITLE_SLUG}.md
 
-```bash
 # Step 3: Commit the plan
 git add .claude/plans/
 git commit -m "docs(plan): add execution plan for #${ISSUE_NUM}"
-```
 
-```bash
-# Step 4: Save the draft PR body and create the PR
+# Step 4: Save PR body and create draft PR
 mkdir -p "${SESSION_DIR}/drafts"
-# (Use Write tool to save the PR body to ${SESSION_DIR}/drafts/develop_pr_body.md)
+# >>> Use Write tool to save the PR body to ${SESSION_DIR}/drafts/develop_pr_body.md
 gh pr create \
   --draft \
   --title "[WIP] ${ISSUE_TITLE}" \
   --body-file "${SESSION_DIR}/drafts/develop_pr_body.md" \
   --base "${BASE_BRANCH}"
 ```
+
+Steps 2 and 4 require switching to the Write tool between bash commands. Run the bash commands in sequence, using Write where indicated by `>>>` markers.
 
 **Draft PR body structure** (save to `${SESSION_DIR}/drafts/develop_pr_body.md` before running `gh pr create`):
 
@@ -342,6 +345,7 @@ Closes #N
   - Review the execution plan in .claude/plans/
   - Implement tasks in order
   - Update task checkboxes as you complete them
+  - Before marking PR as ready, clean up .claude/plans/ or keep as documentation
   - Mark PR as ready for review when done
   ```
 
@@ -372,13 +376,15 @@ Closes #N
 - **PR links to issue:** Body includes `Closes #N`
 - **PR body is minimal:** Points to the plan file; includes task checklist for at-a-glance status
 - **Plan lives in repo:** `.claude/plans/` directory, committed with the branch
+- **Standardized PR format:** This command uses a fixed PR body (plan link + task checklist). Repo PR templates are not applied — the develop PR is a scaffold, not a final description. The engineer can update it before marking ready.
+- **Plan lifecycle:** The plan file in `.claude/plans/` is useful during development. Before marking the PR as ready, the engineer may remove it in a cleanup commit or keep it as project documentation — this is a team preference.
 
 ### Safety & Permissions
 
 - **Clean working tree required:** Don't create branches with uncommitted changes
 - **Default branch check:** Warn if not on default branch before branching
 - **Existing branch check:** Don't clobber existing branches
-- **Atomic execution:** If any step in step 8 fails, stop immediately — don't leave partial state
+- **Fail fast:** If any step in step 8 fails, stop immediately and show recovery steps for whatever completed (earlier steps may have succeeded, leaving a branch or commit)
 - **Never implement:** This command creates the plan and PR scaffold. It does not write implementation code.
 
 ### Edge Cases
