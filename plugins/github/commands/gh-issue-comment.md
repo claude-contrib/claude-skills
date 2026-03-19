@@ -145,6 +145,7 @@ Before presenting to user, conduct a validation review:
 | **Markdown validity**   | Renders correctly?                             | Check code blocks, links, formatting                               |
 | **Issue state aware**   | Tone matches open/closed status?               | Adjust if posting on closed issue                                  |
 | **Length**              | 1–3 paragraphs; readable?                      | Break up long text with bullets or sections                        |
+| **Proportional**        | Comment length is proportional to thread context? | If comment is longer than all existing comments combined, trim to key points; suggest a follow-up if more detail is needed |
 | **Accidental commands** | No unintended close/lock/resolve?              | Verify comment body doesn't trigger unintended actions             |
 | **Helpful**             | Moves issue forward or adds value?             | Ensure comment is constructive, not just acknowledgment            |
 

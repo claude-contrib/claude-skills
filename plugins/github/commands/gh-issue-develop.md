@@ -63,6 +63,12 @@ Your role: **find the draft plan → expand it into an execution-ready plan → 
 !`echo "Branch: $(git branch --show-current 2>/dev/null || echo unknown)"; DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null || echo "main"); echo "Default: ${DEFAULT_BRANCH}"`
 ```
 
+**Existing PR for branch:**
+
+```
+!`ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo ""); if [ -n "${CURRENT_BRANCH}" ] && [ "${CURRENT_BRANCH}" != "$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null)" ]; then gh pr list --head "${CURRENT_BRANCH}" --state open --json number,title,url --jq '.[] | "PR #\(.number): \(.title) (\(.url))"' 2>/dev/null || true; fi; TITLE_SLUG=$(gh issue view "${ISSUE_NUM}" --json title --jq .title 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-' | sed 's/^-//;s/-$//' | cut -c1-50); GENERATED_BRANCH="${ISSUE_NUM}/${TITLE_SLUG}"; if [ "${GENERATED_BRANCH}" != "${CURRENT_BRANCH}" ]; then gh pr list --head "${GENERATED_BRANCH}" --state open --json number,title,url --jq '.[] | "PR #\(.number): \(.title) (\(.url))"' 2>/dev/null || true; fi`
+```
+
 **Session State:**
 
 ```
@@ -97,6 +103,7 @@ Your role: **find the draft plan → expand it into an execution-ready plan → 
   - Skip branch creation entirely in step 8
   - Note in step 6: "Using current branch '[name]' (matches issue #N)"
   - If the current branch does NOT match and is not the default branch, warn as before
+- **Check for existing PR:** If an open PR already exists for the current branch or the generated branch name, warn: "An open PR #N already exists for this branch. Running develop will commit the plan and update the existing PR context. Proceed, or use `/gh-pr-edit N` instead?"
 - Load session state: check if this develop flow was already started for this issue
 
 ### 2. **Parse Arguments & Plan**
@@ -319,7 +326,11 @@ git commit -m "docs(plan): add execution plan for #${ISSUE_NUM}"
 
 Use the Write tool to save the PR body to `${SESSION_DIR}/drafts/develop_pr_body.md` (create the directory first: `mkdir -p "${SESSION_DIR}/drafts"`)
 
-**8e. Create draft PR:**
+**8e. Create draft PR (skip if PR already exists):**
+
+If an open PR already exists for the branch (detected in step 1), skip PR creation and note: "PR #N already exists for this branch. Plan committed. Update the PR description with `/gh-pr-edit N` if needed."
+
+Otherwise, create the draft PR:
 
 ```bash
 gh pr create \
@@ -420,7 +431,7 @@ Closes #N
 - **Dirty working tree:** Stop; ask to commit or stash
 - **Not on default branch:** Warn and confirm
 - **Plan was updated since last read:** Always fetch fresh from the issue comment
-- **PR already exists for a branch with same name:** Note and ask how to proceed
+- **PR already exists for branch:** Skip PR creation; commit the plan only. Note the existing PR and suggest `/gh-pr-edit N` to update its description.
 - **Already on matching branch:** Skip branch creation; use current branch. Note this in the confirmation step.
 
 ---
@@ -444,5 +455,6 @@ Closes #N
 | Plan has unresolved dependencies   | Warn: "Dependency PR #N is still open. Proceed anyway?"                     |
 | Issue is closed                    | Warn: "Issue #N is closed. Still create development branch?"                |
 | Validation detects issues          | Revise in step 5; do NOT present flawed execution plan                      |
+| PR already exists for branch       | Skip PR creation; note "PR #N exists. Plan committed. Use `/gh-pr-edit N` to update." |
 | Already on matching branch         | Skip branch creation; note "Using current branch '[name]'" in confirmation |
 | User interrupts during execution   | Show which steps completed; suggest recovery for partial state              |

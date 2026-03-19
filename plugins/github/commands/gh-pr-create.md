@@ -49,6 +49,12 @@ Your role: **analyze the branch → gather diff and commit context → detect te
 !`DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null || echo "main"); git log --oneline "${DEFAULT_BRANCH}"..HEAD 2>/dev/null || echo "No commits ahead of ${DEFAULT_BRANCH}."`
 ```
 
+**Sensitive Content Scan:**
+
+```
+!`DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null || echo "main"); git diff "${DEFAULT_BRANCH}"...HEAD 2>/dev/null | grep -inE '(api[_-]?key|secret[_-]?key|password|token|credential|private[_-]?key|aws_access|aws_secret)\s*[:=]' | head -10 || echo "No sensitive patterns detected."`
+```
+
 **Available PR Templates:**
 
 ```
@@ -82,6 +88,7 @@ Your role: **analyze the branch → gather diff and commit context → detect te
 - Check current branch is not the default branch; if on default branch, stop: "You're on the default branch. Create or switch to a feature branch first."
 - Check there are commits ahead of base; if none, stop: "No commits to include in a PR. Commit your changes first."
 - Check for uncommitted changes; if found, warn: "You have uncommitted changes that won't be included in the PR."
+- **Check for sensitive content:** If the diff contains patterns matching API keys, secrets, tokens, or credentials, warn: "Potential sensitive content detected in diff: [matched lines]. Verify these should be committed before creating the PR."
 - Load session state: check if there's an existing draft from this session
 
 ### 2. **Smart Argument Parsing**
@@ -173,6 +180,7 @@ Generate a title and structured body from the diff, commits, and user descriptio
 - If a PR template exists, follow its structure faithfully and fill in sections from context
 - Note missing details with `[TODO: ...]` rather than inventing information
 - If the diff includes linked issues (`fixes #42`), carry them into the body
+- If sensitive content was detected in the Context scan, do NOT include the matched values in the PR body. Note: "[Sensitive content detected in diff — verify before merging]"
 
 ### 6. **Validate for Quality**
 

@@ -110,6 +110,7 @@ Apply ONLY the requested modifications:
 - **Title:** Keep under 72 characters; clear and descriptive
 - **Body:** Use GitHub-flavored Markdown; maintain readability with sections, code blocks, lists
 - **Don't "improve" beyond the request:** If user asks for title fix only, don't reorganize the body
+- **Track all changes:** Maintain an internal list of every addition, removal, and modification made to the original. This list is shown in step 7's "Diff summary" so the user can verify without mentally comparing the full body.
 
 Format the draft as:
 
@@ -151,6 +152,11 @@ Show the draft clearly with session context:
 **Changes:**
 - Title: updated to be clearer
 - Body: added new "Acceptance Criteria" section
+
+**Diff summary:**
+- Added: [list sections/content added]
+- Removed: [list sections/content removed, if any]
+- Modified: [list sections where wording changed]
 
 # {new title}
 

@@ -144,6 +144,7 @@ Before presenting to user, conduct a validation review:
 | **Markdown validity**   | Renders correctly?                             | Check code blocks, links, formatting                               |
 | **PR state aware**      | Tone matches draft/open/merged status?         | Adjust if posting on merged or draft PR                            |
 | **Length**              | 1-3 paragraphs; readable?                      | Break up long text with bullets or sections                        |
+| **Proportional**        | Comment length is proportional to thread context? | If comment is longer than all existing comments combined, trim to key points; suggest a follow-up if more detail is needed |
 | **Accidental commands** | No unintended merge/close triggers?            | Verify comment body doesn't trigger unintended actions             |
 | **Helpful**             | Moves PR forward or adds value?                | Ensure comment is constructive, not just acknowledgment            |
 

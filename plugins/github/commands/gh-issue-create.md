@@ -39,7 +39,7 @@ Your role: **parse the description → gather repo context → detect templates 
 **Potential Duplicates (open issues matching description):**
 
 ```
-!`if [ -n "$ARGUMENTS" ]; then gh issue list --state open --search "$ARGUMENTS" --limit 5 --json number,title --jq '.[] | "#\(.number): \(.title)"' 2>/dev/null || echo "(search unavailable)"; else echo "(no description to search against)"; fi`
+!`if [ -n "$ARGUMENTS" ]; then SEARCH_TEXT=$(echo "$ARGUMENTS" | sed 's/--label[[:space:]]*[^[:space:]]*//g; s/--assignee[[:space:]]*[^[:space:]]*//g; s/--template[[:space:]]*[^[:space:]]*//g; s/label:[^[:space:]]*//g' | xargs); if [ -n "${SEARCH_TEXT}" ]; then gh issue list --state open --search "${SEARCH_TEXT}" --limit 5 --json number,title --jq '.[] | "#\(.number): \(.title)"' 2>/dev/null || echo "(search unavailable)"; else echo "(no description to search against)"; fi; else echo "(no description to search against)"; fi`
 ```
 
 **Session State (draft tracking):**

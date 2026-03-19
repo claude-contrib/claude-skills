@@ -64,6 +64,12 @@ Your role: **read the issue → parse context → detect conflicts → draft a h
 !`gh repo view --json url,defaultBranchRef,languages,description 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_repo_view.jq" || echo "Unable to fetch repo info."`
 ```
 
+**Repository Structure (for path validation):**
+
+```
+!`find . -type f -not -path './.git/*' -not -path './node_modules/*' -not -path './vendor/*' -not -path './.next/*' -not -path './dist/*' -not -path './build/*' -not -path './__pycache__/*' -not -path './.venv/*' | head -80 2>/dev/null || echo "Unable to list repo files."`
+```
+
 **User Request:**
 
 ```
@@ -226,7 +232,7 @@ Before presenting to user, conduct a validation review:
 | **Clarity**               | Each task clearly describes what changes and why?         | Rewrite vague tasks with specific intent                 |
 | **No code dumps**         | No large code blocks (>5 lines)?                          | Replace with descriptive prose                           |
 | **Estimates present**     | Every task has a size; total estimate in header?          | Add missing estimates                                    |
-| **Affected areas**        | File paths are real (from repo), not invented?            | Verify paths exist or mark as "new file"                 |
+| **Affected areas**        | File paths verified against repo structure context, or marked as "(new)"? | Verify paths exist or mark as "new file"                 |
 | **Task count**            | 3-8 tasks? If more, recommend splitting the issue         | Consolidate or suggest split                             |
 | **Open Questions**        | Only genuine unknowns, nothing fabricated?                | Remove speculative questions                             |
 | **Dependencies**          | Task order makes sense; no circular dependencies?         | Reorder tasks                                            |
