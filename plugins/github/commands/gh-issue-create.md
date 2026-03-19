@@ -74,22 +74,15 @@ Your role: **parse the description → gather repo context → detect templates 
 - **Parse user arguments for:**
   - Issue description/intent (the main text)
   - Labels: `--label bug,enhancement` or `label:bug` prefix
-  - Template hints: `--template bug_report.md` or keywords like "bug", "feature"
   - Linked issues: references like "related to #42", "blocks #15"
   - Assignees: `--assignee username`
 
-- **Auto-detect issue type from description:**
-  - Bug indicators: "broken", "crash", "error", "fails", "regression", "doesn't work"
-  - Feature indicators: "add", "new", "support", "improve", "enhance", "request"
-  - Documentation indicators: "docs", "documentation", "readme", "guide"
-
 - **Detect issue template:**
   - Check `.github/ISSUE_TEMPLATE/` for available templates
-  - If templates found, match detected issue type to the best template
-  - If multiple templates match or type is unclear, present choices: "Found these templates: [list]. Which fits best, or should I use a blank issue?"
-  - Read the matched template content and use its structure for the body
+  - If one template found, offer it: "Found template '[name]'. Use it, or start with a blank issue?"
+  - If multiple templates found, present choices: "Found these templates: [list]. Which fits best, or should I use a blank issue?"
+  - If user selects a template, read its content and use its structure for the body
   - If no templates found, use a sensible default structure based on issue type (see step 5)
-  - If `config.yml` exists in `.github/ISSUE_TEMPLATE/`, check if blank issues are allowed; if not, a template is required
 
 - **Resume option:**
   - If session state shows unsaved draft, ask: "You have an issue draft from [timestamp]. Resume, start fresh, or discard?"
@@ -110,7 +103,6 @@ Your role: **parse the description → gather repo context → detect templates 
 
 - **Duplicate detection:** Search open issues for similar titles or descriptions; if a close match is found, flag it: "This looks similar to open issue #N: '[title]'"
 - **Session conflicts:** If earlier draft in session contradicts current intent, ask: "Earlier you drafted a bug report, now requesting a feature. Start fresh?"
-- **Template conflicts:** If selected template doesn't match description type, warn: "You selected the bug template but this reads like a feature request"
 - **Label conflicts:** If requested labels contradict each other or don't match issue type, flag it
 
 **If conflicts detected:**
@@ -223,7 +215,6 @@ Before presenting to user, conduct a validation review:
 | **Markdown validity**   | Body Markdown renders correctly              | Fix formatting issues                            |
 | **Completeness**        | All relevant sections populated              | Fill in or mark as `[TODO: ...]`                 |
 | **No invented details** | Nothing fabricated beyond user's description | Remove speculation; mark unknowns as TODO        |
-| **Template alignment**  | Body follows selected template structure     | Adjust to match template sections                |
 | **Label validity**      | Requested labels exist in the repo           | Warn if labels don't exist; suggest alternatives |
 | **Linked references**   | Issue/PR references are correctly formatted  | Fix reference syntax                             |
 | **Actionability**       | Issue is clear enough for someone to act on  | Ask user for more details if too vague           |
@@ -303,7 +294,7 @@ gh issue create "${ARGS[@]}"
 - **Concise technical language:** Match the tone and vocabulary of the repository
 - **Structure adapts to type:** Bug reports get reproduction steps; features get acceptance criteria; don't force all sections
 - **Honesty over completeness:** Mark unknown details as `[TODO: ...]` rather than inventing them
-- **Template-first:** If a repo template exists and matches, follow its structure faithfully
+- **Template-aware:** If user selects a repo template, follow its structure faithfully
 - **Title quality:** Under 72 characters; specific and descriptive; no generic titles like "Bug" or "Feature request"
 - **Body quality:** GitHub-flavored Markdown; readable sections; task lists for acceptance criteria
 
@@ -320,7 +311,6 @@ gh issue create "${ARGS[@]}"
 ### Edge Cases
 
 - **Vague descriptions:** Ask for specifics before drafting; don't guess the intent
-- **Template conflicts:** If user's description doesn't fit any template, use blank issue format
 - **Labels don't exist:** Warn the user: "Label '[name]' doesn't exist in this repo. Create it, use a different label, or skip?"
 - **No write access:** If `gh issue create` fails with permission error, suggest checking repo permissions
 - **Duplicate detection:** If description closely matches an existing open issue title, warn before creating

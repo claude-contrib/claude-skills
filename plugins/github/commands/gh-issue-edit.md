@@ -75,12 +75,7 @@ Your role: **read the issue → parse context → detect conflicts → draft rev
 - **Parse user arguments for:**
   - Specific changes (e.g., "update title", "add acceptance criteria")
   - Linked issues (e.g., "add reference to #42")
-  - Template alignment (e.g., "use feature template")
   - Scope of change (title only, body only, both)
-
-- **Auto-detect if arguments reference:**
-  - Issue templates in `.github/ISSUE_TEMPLATE/`
-  - Common sections (Acceptance Criteria, Steps to Reproduce, Expected/Actual behavior)
 
 - **Resume option:**
   - If session state shows unsaved edit draft for this issue, ask: "You have an edit draft from [timestamp]. Resume, start fresh, or discard?"
@@ -100,7 +95,6 @@ Your role: **read the issue → parse context → detect conflicts → draft rev
 - **State conflicts:** If editing closed issue, note state
 - **Content contradictions:** If earlier edit in session contradicted current request, ask: "Earlier you removed [section], now adding it back?"
 - **Working tree conflicts:** If local branch has edits to the issue, note them
-- **Template alignment:** If user asks to align with template but current content contradicts it, warn
 
 **If conflicts detected:**
 
@@ -229,7 +223,6 @@ gh issue edit "${ISSUE_NUM}" \
 - **Closed issues:** Note state and confirm before applying edits
 - **Multiple edits in one session:** Treat each as a new workflow (fetch fresh each time)
 - **Sensitive info:** If user asks to expose sensitive data, clarify intent first
-- **Template alignment:** If repo has issue templates, help user follow them
 
 ---
 

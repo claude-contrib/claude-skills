@@ -74,12 +74,7 @@ Your role: **read the PR → parse context → detect conflicts → draft revise
 
 - **Parse user arguments for:**
   - Specific changes (e.g., "update title", "add testing section")
-  - Template alignment (e.g., "use PR template")
   - Scope of change (title only, body only, both)
-
-- **Auto-detect if arguments reference:**
-  - PR templates in `.github/PULL_REQUEST_TEMPLATE/`
-  - Common sections (Testing, Breaking Changes, Migration Guide, Checklist)
 
 - **Resume option:**
   - If session state shows unsaved edit draft for this PR, ask: "You have an edit draft from [timestamp]. Resume, start fresh, or discard?"
@@ -99,7 +94,6 @@ Your role: **read the PR → parse context → detect conflicts → draft revise
 - **State conflicts:** If editing merged PR, note state
 - **Review state:** If PR has approved reviews, warn: "Edits may affect reviewer confidence"
 - **Content contradictions:** If earlier edit in session contradicted current request, ask: "Earlier you removed [section], now adding it back?"
-- **Template alignment:** If user asks to align with template but current content contradicts it, warn
 
 **If conflicts detected:**
 
