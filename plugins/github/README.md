@@ -20,7 +20,7 @@ Each command follows a **draft → iterate → confirm → execute** workflow. N
 The commands form a spec-driven development pipeline. The main flow moves top-to-bottom from issue creation through code review, with supporting commands available at each stage.
 
 <picture>
-  <img src="./docs/workflow.svg" alt="Spec-driven development workflow: Issue → Plan → Develop → Implement → Review" width="680">
+  <img src="./assets/workflow.svg" alt="Spec-driven development workflow: Issue → Plan → Develop → Implement → Review" width="680">
 </picture>
 
 **Main pipeline:**
