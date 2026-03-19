@@ -1,6 +1,6 @@
 # Claude Skills
 
-> Slash commands for [Claude Code](https://claude.ai/code) — type `/commit`, get a perfect conventional commit. Every time.
+> Slash commands for [Claude Code](https://claude.ai/code) — install a skill, type a command, get the job done. Every time.
 
 [![Validate](https://github.com/claude-contrib/claude-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/claude-contrib/claude-skills/actions/workflows/validate.yml)
 [![Release](https://img.shields.io/github/v/release/claude-contrib/claude-skills)](https://github.com/claude-contrib/claude-skills/releases/latest)
@@ -13,9 +13,9 @@ Skills are intentional — you invoke them when you need them. Each skill is a f
 Type a command in Claude Code. Claude reads the skill's prompt template, executes the workflow, and delivers the result. That's it.
 
 ```
-/commit
+/gh-issue-plan 42
 ```
-→ Diffs staged changes, checks commit history, writes a conventional commit message, creates the commit.
+→ Fetches issue #42, drafts a TDD-style implementation plan with estimates, shows it for review, posts it as a comment after you confirm.
 
 ## Requirements
 
@@ -43,20 +43,20 @@ Install `claude` separately: [Claude Code installation guide](https://docs.anthr
 **2. Install a skill** inside Claude Code:
 
 ```
-/plugin install commit@claude-skills
+/plugin install github@claude-skills
 ```
 
 **3. Use it:**
 
 ```
-/commit
+/gh-issue-plan 42
 ```
 
 ## Available Skills
 
-| Skill | Command | What it does |
-|-------|---------|--------------|
-| [`commit`](plugins/commit/README.md) | `/commit` | Diffs staged changes, infers type/scope, writes and creates a [conventional commit](https://www.conventionalcommits.org/) |
+| Skill | Commands | What it does |
+|-------|----------|--------------|
+| [`github`](plugins/github/README.md) | `/gh-issue-comment`, `/gh-issue-edit`, `/gh-issue-plan`, `/gh-pr-comment`, `/gh-pr-edit`, `/gh-pr-review` | Manage GitHub issues and pull requests — comment, edit, plan, and review via a draft → confirm → post workflow |
 
 ## Publish Your Own Skill
 

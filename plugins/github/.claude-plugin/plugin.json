@@ -1,7 +1,7 @@
 {
-  "name": "commit",
+  "name": "github",
   "version": "1.0.0",
-  "description": "Create a well-structured git commit with a conventional commit message",
+  "description": "GitHub integration — slash commands for managing issues and pull requests",
   "author": {
     "name": "claude-contrib",
     "email": "claude-contrib@github.com",
@@ -11,9 +11,10 @@
   "repository": "https://github.com/claude-contrib/claude-skills",
   "license": "MIT",
   "keywords": [
-    "git",
-    "commit",
-    "conventional-commits",
-    "version-control"
+    "github",
+    "issues",
+    "pull-requests",
+    "gh-cli",
+    "code-review"
   ]
 }

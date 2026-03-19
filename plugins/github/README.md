@@ -1,0 +1,117 @@
+# github
+
+GitHub integration for Claude Code — slash commands for managing issues and pull requests.
+
+Each command follows a **draft → iterate → confirm → execute** workflow. Nothing is posted or applied until you explicitly confirm.
+
+## Installation
+
+```
+/plugin install github@claude-skills
+```
+
+## Requirements
+
+- [`gh` CLI](https://cli.github.com/) installed and authenticated (`gh auth status`)
+- Write permissions on the target repository
+
+## Commands
+
+### `/gh-issue-comment`
+
+Draft and post a comment on a GitHub issue.
+
+```
+/gh-issue-comment 42 thank the reporter and ask for a reproduction case
+/gh-issue-comment 42 summarize the discussion so far
+/gh-issue-comment 42
+```
+
+The first argument is the issue number. The rest is the comment intent. If no intent is given, the command infers a helpful comment from issue context. Validates for tone and quality, shows you a draft, and posts only after you confirm.
+
+---
+
+### `/gh-issue-edit`
+
+Edit the title and/or body of a GitHub issue.
+
+```
+/gh-issue-edit 42 add a definition of done section
+/gh-issue-edit 42 shorten the title and add reproduction steps
+/gh-issue-edit 42 rewrite the description as a bug report
+```
+
+The first argument is the issue number. Only the requested changes are applied — existing wording and structure are preserved unless explicitly changed. Titles are kept under 72 characters.
+
+---
+
+### `/gh-issue-plan`
+
+Generate a comprehensive TDD-style implementation plan for a GitHub issue and post it as a comment.
+
+```
+/gh-issue-plan 42
+/gh-issue-plan 42 focus on the database migration
+/gh-issue-plan 42 focus on the auth module
+```
+
+The first argument is the issue number. Optional second argument scopes the plan to a focus area. The plan includes: goal, architecture, affected files, task breakdown with estimates (XS/S/M/L), TDD steps (write test → fail → implement → pass → commit), effort summary, and open questions. Idempotent: if a plan comment already exists (identified by a tracking marker), it updates rather than duplicates.
+
+---
+
+### `/gh-pr-comment`
+
+Draft and post a comment on a GitHub pull request.
+
+```
+/gh-pr-comment 99 ask the author to add tests for the edge cases
+/gh-pr-comment 99 summarize the changes in this PR
+/gh-pr-comment 99
+```
+
+The first argument is the PR number. Aware of PR state (draft/open/merged), review decision, and recent activity. Detects redundancy and warns before posting similar content to existing comments.
+
+---
+
+### `/gh-pr-edit`
+
+Edit the title and/or body of a GitHub pull request.
+
+```
+/gh-pr-edit 99 add a testing section and update the summary
+/gh-pr-edit 99 shorten the title
+/gh-pr-edit 99 rewrite the description to include risk level
+```
+
+The first argument is the PR number. Warns if the PR has approved reviews (edits may affect reviewer confidence). Only requested changes are applied.
+
+---
+
+### `/gh-pr-review`
+
+Draft and submit a structured code review for a GitHub pull request.
+
+```
+/gh-pr-review 99
+/gh-pr-review 99 approve
+/gh-pr-review 99 request-changes
+/gh-pr-review 99 comment focus on error handling
+/gh-pr-review 99 approve focus on the auth changes
+```
+
+The first argument is the PR number. Optional second argument is the outcome (`approve`, `request-changes`, or `comment`). Optional remaining text is a focus area. Analyzes the diff and organizes findings by severity: **High** (blocks approval), **Medium** (logic/edge cases), **Low** (minor improvements). If no outcome is specified, it is determined from the findings. Checks for a prior AI-generated review on the same commit before submitting to prevent duplicates.
+
+---
+
+## Environment Variables
+
+| Variable | Used by |
+|----------|---------|
+| `CLAUDE_SESSION_ID` | All commands — session ID used to derive the session state directory (`~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}`) |
+| `CLAUDE_PLUGIN_ROOT` | All commands — path to jq query files bundled with this plugin |
+
+`CLAUDE_SESSION_ID` is set automatically by Claude Code. When using commands standalone, set it manually:
+
+```bash
+export CLAUDE_SESSION_ID=my-session-id
+```
