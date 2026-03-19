@@ -23,7 +23,7 @@ Type a command in Claude Code. Claude reads the skill's prompt template, execute
 
 Install `claude` separately: [Claude Code installation guide](https://docs.anthropic.com/en/docs/claude-code/setup)
 
-## Quickstart
+## Installation
 
 **1. Register the marketplace** in `~/.claude/settings.json`:
 
@@ -88,13 +88,27 @@ Step-by-step instructions for Claude...
 
 → [Read the full authoring guide](docs/README.md)
 
+## Development
+
+The repo ships a Nix flake for a reproducible dev environment with all CI tooling:
+
+```bash
+nix develop
+```
+
+Provides: `python3` + `check-jsonschema`, `jq`, `bash`, `shellcheck`, `gh`.
+
 ## The claude-contrib Ecosystem
 
-| Marketplace | Install key | What it provides |
-|-------------|------------|-----------------|
-| [claude-extensions](https://github.com/claude-contrib/claude-extensions) | `@claude-extensions` | Hooks, context rules, session automation |
-| [claude-services](https://github.com/claude-contrib/claude-services) | `@claude-services` | MCP servers — browser, filesystem, sequential thinking |
-| **claude-skills** ← you are here | `@claude-skills` | Slash commands — `/commit`, and more |
+| Repo | What it provides |
+|------|-----------------|
+| [claude-extensions](https://github.com/claude-contrib/claude-extensions) | Hooks, context rules, session automation |
+| [claude-features](https://github.com/claude-contrib/claude-features) | Devcontainer features for Claude Code and Anthropic tools |
+| [claude-languages](https://github.com/claude-contrib/claude-languages) | LSP language servers — completions, diagnostics, hover |
+| [claude-sandbox](https://github.com/claude-contrib/claude-sandbox) | Sandboxed Docker environment for Claude Code |
+| [claude-services](https://github.com/claude-contrib/claude-services) | MCP servers — browser, filesystem, sequential thinking |
+| **claude-skills** ← you are here | Slash commands for Claude Code |
+| [claude-status](https://github.com/claude-contrib/claude-status) | Live status line — context, cost, model, branch, worktree |
 
 ## License
 
