@@ -73,6 +73,21 @@ The first argument is the issue number. Optional second argument scopes the plan
 
 ---
 
+### `/gh-pr-create`
+
+Draft and create a new GitHub pull request from the current branch.
+
+```
+/gh-pr-create
+/gh-pr-create add dark mode support to the settings page
+/gh-pr-create --draft --label enhancement --reviewer octocat
+/gh-pr-create fixes #42 --base develop
+```
+
+The title and body are generated from the branch's diff and commits. An optional description argument refines the output. Supports `--draft`, `--base`, `--label`, and `--reviewer` flags. If the repo has a `.github/PULL_REQUEST_TEMPLATE.md`, the template structure is used. The body follows a Summary, Changes, Risk Level, Testing, Impact structure (sections omitted when not relevant).
+
+---
+
 ### `/gh-pr-comment`
 
 Draft and post a comment on a GitHub pull request.
