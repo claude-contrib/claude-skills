@@ -69,6 +69,12 @@ Your role: **find the draft plan → expand it into an execution-ready plan → 
 !`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/develop_session.md" 2>/dev/null || true`
 ```
 
+**Session Notes (optional, non-authoritative):**
+
+```
+!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/session_notes.md" 2>/dev/null || true`
+```
+
 **User Request:**
 
 ```
@@ -206,7 +212,27 @@ Transform the high-level draft plan into an execution-ready plan. This is the de
 - **Task status checkboxes:** `[ ] Not started` for all tasks (tracked during implementation)
 - **No complete code blocks:** This is still a plan, not an implementation. Code comes during task execution.
 
-### 5. **Present for Confirmation**
+### 5. **Validate Execution Plan**
+
+Before presenting to user, conduct a validation review:
+
+**Check:**
+
+| Check                      | Validation                                                | Action if Failed                                          |
+| -------------------------- | --------------------------------------------------------- | --------------------------------------------------------- |
+| **Draft intent preserved** | Expansion didn't redesign the draft plan's approach?      | Revert to draft intent; expand without changing direction  |
+| **File paths valid**       | Paths are real (from repo) or explicitly marked as new?   | Verify paths exist or mark as "(new)"                     |
+| **Acceptance criteria**    | Each task has specific, verifiable criteria?               | Replace vague criteria ("works correctly") with testable conditions |
+| **Test strategy present**  | Each task describes what to test, not test code?           | Add test strategy; remove any implementation code          |
+| **Commit messages**        | Follow repo conventions (conventional commits if used)?   | Detect convention and match                               |
+| **Task count matches**     | Same number of tasks as draft plan?                        | Don't add or remove tasks during expansion                |
+| **No implementation code** | Plan contains no code blocks beyond brief snippets?        | Remove code; describe the change in prose                 |
+| **Branch name valid**      | Follows naming rules, under 60 chars?                      | Adjust slug length or format                              |
+| **Issue link correct**     | Issue number and URL are accurate?                         | Verify against fetched issue data                         |
+
+**If any check fails:** Revise the execution plan before step 6. Do NOT proceed with a flawed plan.
+
+### 6. **Present for Confirmation**
 
 Show what will happen:
 
@@ -229,15 +255,15 @@ Show what will happen:
 _Proceed, or tell me what to change?_
 ```
 
-### 6. **Handle User Feedback**
+### 7. **Handle User Feedback**
 
-- **If user confirms** (`"proceed"`, `"yes"`, `"looks good"`, `"👍"`): Proceed to step 7
-- **If user requests changes to the plan**: Revise and return to step 5
-- **If user wants to change the branch name**: Update and return to step 5
+- **If user confirms** (`"proceed"`, `"yes"`, `"looks good"`, `"👍"`): Proceed to step 8
+- **If user requests changes to the plan**: Revise and return to step 5 → 6
+- **If user wants to change the branch name**: Update and return to step 5 → 6
 - **If user says cancel** (`"no"`, `"cancel"`): Stop
 - **If no response**: Ask once more: "Should I proceed with creating the branch and draft PR?"
 
-### 7. **Execute: Branch, Save, Commit, PR**
+### 8. **Execute: Branch, Save, Commit, PR**
 
 Run the following steps. If any step fails, stop and show the error — do NOT continue with partial state.
 
@@ -265,14 +291,16 @@ git commit -m "docs(plan): add execution plan for #${ISSUE_NUM}"
 ```
 
 ```bash
-# Step 4: Create draft PR
+# Step 4: Save the draft PR body and create the PR
+mkdir -p "${SESSION_DIR}/drafts"
+# (Use Write tool to save the PR body to ${SESSION_DIR}/drafts/develop_pr_body.md)
 gh pr create \
   --draft \
   --title "[WIP] ${ISSUE_TITLE}" \
   --body-file "${SESSION_DIR}/drafts/develop_pr_body.md"
 ```
 
-**Draft PR body structure:**
+**Draft PR body structure** (save to `${SESSION_DIR}/drafts/develop_pr_body.md` before running `gh pr create`):
 
 ```markdown
 ## Summary
@@ -297,8 +325,9 @@ See [`.claude/plans/N-slug.md`](link) for the full execution plan.
 Closes #N
 ```
 
-### 8. **Confirm Success**
+### 9. **Confirm Success**
 
+- Update session state: track issue number, branch name, plan path, PR number, and timestamp in `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/develop_session.md`
 - On success, show:
 
   ```
@@ -348,7 +377,7 @@ Closes #N
 - **Clean working tree required:** Don't create branches with uncommitted changes
 - **Default branch check:** Warn if not on default branch before branching
 - **Existing branch check:** Don't clobber existing branches
-- **Atomic execution:** If any step in step 7 fails, stop immediately — don't leave partial state
+- **Atomic execution:** If any step in step 8 fails, stop immediately — don't leave partial state
 - **Never implement:** This command creates the plan and PR scaffold. It does not write implementation code.
 
 ### Edge Cases
