@@ -1,0 +1,256 @@
+---
+description: >
+  Drafts a GitHub pull request comment based on PR context and intent, parses
+  context intelligently, detects conflicts, validates for quality and
+  appropriateness, then posts it after explicit user confirmation.
+argument-hint: "[comment intent or specific text]"
+disable-model-invocation: true
+allowed-tools: Bash(*), Write
+---
+
+# Draft and Post GitHub PR Comments
+
+## Mode: COMMENT-ONLY
+
+Your role: **read the PR → parse context → detect conflicts → draft a helpful, constructive comment → validate for quality and appropriateness → present for review → incorporate feedback → post the comment.**
+
+**Posting the comment** means creating a new comment on the PR. It does NOT mean: implementing anything, editing the PR itself, merging/closing it, or making any other changes to the repo.
+
+## Prerequisites
+
+- `gh` CLI installed and authenticated (`gh auth status` to verify)
+- Environment: `$GH_PR_NUMBER` (set or pass explicitly)
+- Directories: `$GH_CLAUDE_SESSION_DIR` must be writable
+- Write permissions on the repository
+
+## Context
+
+**Current Pull Request (always fresh):**
+
+```
+!`gh pr view "${GH_PR_NUMBER}" --json number,title,url,body,labels,comments,isDraft,state,reviewDecision,reviews,commits 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_pr_view.jq" || echo "Unable to fetch PR. Check the PR number and gh auth status."`
+```
+
+**Recent Comments (for redundancy & context detection):**
+
+```
+!`gh pr view "${GH_PR_NUMBER}" --json comments 2>/dev/null | jq -r '.comments[-5:] | map("\(.author.login) (\(.createdAt | split("T")[0])): \(.body[:120])") | .[]' || echo "Unable to fetch comments."`
+```
+
+**Session State (comment tracking):**
+
+```
+!`cat "${GH_CLAUDE_SESSION_DIR}/state/comment_session.md" 2>/dev/null || true`
+```
+
+**Session Notes (optional, non-authoritative):**
+
+```
+!`cat "${GH_CLAUDE_SESSION_DIR}/state/session_notes.md" 2>/dev/null || true`
+```
+
+**User Request:**
+
+```
+!`echo "$ARGUMENTS"`
+```
+
+## Workflow
+
+### 1. **Validate & Fetch**
+
+- Verify `$GH_PR_NUMBER` is set; if not, ask the user
+- Fetch PR details (title, body, state, reviews, comments); if fetch fails, stop and show the error
+- Check user has write permissions to the repo (auth required)
+- Note PR state (draft/open/merged/closed) and existing comments for context
+- Load session state: check if there are recent comments from this session
+
+### 2. **Smart Argument Parsing**
+
+- **Parse user arguments for:**
+  - Intent (e.g., "respond to review feedback", "provide status update", "ask for clarification")
+  - Specific references (e.g., "mention PR #99", "reference commit abc123")
+  - Tone hints (e.g., "congratulatory", "urgent", "gentle")
+  - Question vs. statement vs. code example
+
+- **Auto-detect context from:**
+  - PR labels: bug fix, feature, breaking change, etc.
+  - PR state: draft vs. open vs. merged affects tone
+  - Review decision: changes requested, approved, pending
+  - Recent comment activity: what's been discussed already
+
+- **Resume option:**
+  - If session state shows unsaved comment draft for this PR, ask: "You have a comment draft from [timestamp]. Resume, start fresh, or discard?"
+
+### 3. **Clarify Intent (If Needed)**
+
+- **If arguments provided:** Confirm intent ("I'll draft a comment responding to the review feedback")
+- **If empty:** Ask "What's the intent of this comment? (e.g., respond to review, provide status update, ask for clarification, suggest changes)"
+- If intent is ambiguous, ask for specifics: "Do you want to ask a question or provide information?"
+- If intent might merge/close the PR, confirm explicitly: "This sounds like it resolves the PR—should the comment reflect that?"
+
+### 4. **Detect Conflicts & Contradictions**
+
+**Before drafting, check for:**
+
+- **Redundancy:** If your intended comment echoes the last 2 comments, flag it: "Someone already mentioned this 2 comments ago"
+- **State conflicts:** If merged/closed PR but intent is problem-solving, confirm: "PR is merged. Still post a solution comment (for reference)?"
+- **Recent activity:** If new comments in last 5 minutes, summarize: "New activity detected: [who] said [what]"
+- **Review state:** If PR has pending reviews and comment might be premature, note it
+- **Sensitive topic:** If PR touches security, licensing, or major architecture, confirm: "This is sensitive. Still comment?"
+
+**If conflicts detected:**
+
+- Show conflict summary
+- Ask user to confirm: "Proceed anyway?" or "Let me know what changed"
+- Do NOT proceed without confirmation
+
+### 5. **Draft the Comment**
+
+Based on intent and PR context:
+
+- **Seed from arguments:** Use provided text as starting point
+- **Or infer helpful comment** from:
+  - PR description and changes (what's being proposed?)
+  - Existing comments and reviews (avoid repeating points; add new perspective)
+  - Review decision state (changes requested vs. approved)
+  - PR state (draft vs. open vs. merged affects tone)
+- **Tone:** Constructive, professional, respectful, helpful
+- **Format:** Use GitHub Markdown (code blocks, lists, links, mentions)
+- **Avoid:**
+  - Excessive emoji (one or two if naturally appropriate)
+  - Speculation about causes (ask questions instead)
+  - Commands to merge/close (that's not a comment's job)
+  - Repeating points already made
+  - Dismissive or sarcastic language
+
+### 6. **Validate Comment for Quality**
+
+Before presenting to user, conduct a validation review:
+
+**Check:**
+
+| Check                   | Validation                                     | Action if Failed                                                   |
+| ----------------------- | ---------------------------------------------- | ------------------------------------------------------------------ |
+| **Tone**                | Professional, constructive, respectful?        | Revise to remove sarcasm/dismissal                                 |
+| **Specificity**         | References PR details (not generic)?           | Add specific details or context                                    |
+| **Redundancy**          | Doesn't repeat existing comments?              | Check against existing comments; add new perspective or remove     |
+| **Speculation**         | No unsupported claims? Asks questions instead? | Replace speculation with "Have you tried..." or specific questions |
+| **Markdown validity**   | Renders correctly?                             | Check code blocks, links, formatting                               |
+| **PR state aware**      | Tone matches draft/open/merged status?         | Adjust if posting on merged or draft PR                            |
+| **Length**              | 1-3 paragraphs; readable?                      | Break up long text with bullets or sections                        |
+| **Accidental commands** | No unintended merge/close triggers?            | Verify comment body doesn't trigger unintended actions             |
+| **Helpful**             | Moves PR forward or adds value?                | Ensure comment is constructive, not just acknowledgment            |
+
+**If any check fails:** Revise the draft before step 7. Do NOT proceed with problematic comments.
+
+### 7. **Present for Review**
+
+Show the draft clearly with session and PR context:
+
+```
+---
+**Draft comment for PR #N: [Title]**
+
+**PR state:** [draft/open/merged/closed]
+**Review decision:** [pending/approved/changes requested]
+**Recent activity:** [brief summary of last 2-3 comments]
+**Session context:** This is comment #1 in this session
+
+{comment body in GitHub-flavored Markdown}
+
+---
+
+_Post this comment, or tell me what to change?_
+```
+
+### 8. **Handle User Feedback**
+
+- **If user confirms** (`"post"`, `"yes"`, `"looks good"`, `"👍"`): Proceed to step 9
+- **If user requests changes**: Revise and return to step 6 → 7
+- **If user says cancel** (`"no"`, `"cancel"`, `"discard"`): Stop and don't post
+- **If no response to confirmation**: Ask once more: "Should I post this comment or make changes?"
+
+### 9. **Save & Track Session State**
+
+- Create the drafts directory: `mkdir -p "${GH_CLAUDE_SESSION_DIR}/drafts"`
+- Use the Write tool to save the comment body to `${GH_CLAUDE_SESSION_DIR}/drafts/pr_comment_draft.md`
+- Update session state: track comments posted in this session
+
+### 10. **Post the Comment**
+
+```bash
+gh pr comment "${GH_PR_NUMBER}" \
+  --body-file "${GH_CLAUDE_SESSION_DIR}/drafts/pr_comment_draft.md"
+```
+
+### 11. **Confirm Success**
+
+- On success: Show the posted comment URL and a brief confirmation
+- On failure: Display the full error and suggest `gh auth status` or repo permission check
+
+---
+
+## Rules & Guidelines
+
+### Comment Content & Tone
+
+- **Tone:** Constructive, professional, respectful; avoid sarcasm, dismissiveness, or condescension
+- **Specificity:** Reference commits, file names, line numbers, or reviewer names when relevant
+- **Length:** Generally 1-3 paragraphs; use bullet points or code blocks for readability
+- **Addressing Reviews:** If replying to a review, quote or reference the specific concern
+- **Avoid:**
+  - Excessive emoji (one or two if naturally appropriate)
+  - Speculation ("I bet it's because..."); ask questions instead
+  - Multiple separate comments (consolidate into one)
+  - Merging/closing PRs (that's not a comment function)
+  - Repeating points already in the thread
+  - Unhelpful acknowledgments ("I agree!"); add value instead
+
+### PR Context Awareness
+
+- **State matters:** Tone differs for draft ("work in progress"), open ("let's review"), merged ("for the record")
+- **Review decision:** Consider existing review state (changes requested vs. approved vs. pending)
+- **Draft PRs:** Don't rush approval comments; note that review may be premature
+- **Multiple reviews:** If the PR has multiple pending reviews and intent is ambiguous, list the reviewers and ask which to address
+- **Recent activity:** Check what's been discussed; don't repeat
+- **First responder:** If first comment on PR, set a helpful, constructive tone
+
+### Safety & Permissions
+
+- If required context is missing, **ask rather than guess**
+- If PR fetch fails, **stop immediately** and ask user to:
+  - Verify the PR number (`gh pr view 123`)
+  - Run `gh auth status` to check authentication
+  - Confirm repo accessibility
+- If `gh pr comment` fails, show the full error and suggest next steps
+- **Never post a comment you haven't validated** against the checklist in step 6
+
+### Edge Cases
+
+- **Merged/closed PRs:** Note state in presentation; adjust tone for "for reference" comments
+- **Draft PRs:** Warn if posting approval comments (may not be intended)
+- **Very stale PRs:** Acknowledge age and ask if context still applies before posting
+- **Sensitive topics:** Flag (security, licensing, architecture) and confirm before posting
+- **Duplicate comments:** Warn if your comment echoes recent discussion; offer to revise
+- **Review threads:** This command posts general PR comments only; it cannot reply to specific inline review threads
+- **Thread too long:** If PR has 50+ comments, offer to summarize context
+
+---
+
+## Error Messages & Recovery
+
+| Scenario                    | Action                                                        |
+| --------------------------- | ------------------------------------------------------------- |
+| `GH_PR_NUMBER` not set      | Ask user: "Which PR? (use `#123` or set `$GH_PR_NUMBER`)"     |
+| `gh pr view` fails          | Show error, suggest `gh auth status`                          |
+| Intent is ambiguous          | Ask: "Do you want to [option A] or [option B]?"               |
+| Comment tone is dismissive   | Revise in step 6; make it constructive                        |
+| Comment is pure speculation  | Flag in step 6; ask to rewrite as questions                   |
+| Comment would be redundant   | Check against existing comments; offer to revise              |
+| PR is draft or merged        | Note state in step 7 presentation; confirm before posting     |
+| Markdown is broken           | Fix in step 6; show preview before presenting                 |
+| `gh pr comment` fails        | Show error, suggest `gh auth status` or repo permission check |
+| User interrupts drafting     | Ask: "Should I save the draft, discard it, or resume?"        |
+| Validation detects issues    | Revise in step 6; do NOT present problematic comment          |
+| Conflict detected            | Show conflict, ask user to confirm before proceeding          |

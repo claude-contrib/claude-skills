@@ -20,6 +20,18 @@
       "category": "developer-tools",
       "tags": ["git", "commit", "conventional-commits"],
       "keywords": ["git", "commit", "conventional-commits", "version-control"]
+    },
+    {
+      "name": "github",
+      "description": "GitHub integration — slash commands for managing issues and pull requests",
+      "version": "1.0.0",
+      "author": {
+        "name": "claude-contrib"
+      },
+      "source": "./plugins/github",
+      "category": "developer-tools",
+      "tags": ["github", "issues", "pull-requests", "code-review"],
+      "keywords": ["github", "issues", "pull-requests", "gh-cli", "code-review", "pr-review"]
     }
   ]
 }
