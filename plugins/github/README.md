@@ -136,7 +136,7 @@ The first argument is the PR number. Optional second argument is the outcome (`a
 
 | Variable | Used by |
 |----------|---------|
-| `CLAUDE_SESSION_ID` | All commands — session ID used to derive the session state directory (`~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}`) |
+| `CLAUDE_SESSION_ID` | All commands — session ID used to derive the session state directory (`${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}`) |
 | `CLAUDE_PLUGIN_ROOT` | All commands — path to jq query files bundled with this plugin |
 
 `CLAUDE_SESSION_ID` is set automatically by Claude Code. When using commands standalone, set it manually:

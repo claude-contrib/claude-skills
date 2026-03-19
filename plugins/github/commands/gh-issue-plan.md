@@ -20,7 +20,7 @@ Your role: **read the issue → parse context → detect conflicts → draft com
 ## Prerequisites
 
 - `gh` CLI installed and authenticated (`gh auth status` to verify)
-- Directories: `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable (for draft state tracking)
+- Directories: `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable (for draft state tracking)
 - Write permissions on the repository
 - Git repo recommended (for working-tree context, optional)
 
@@ -47,13 +47,13 @@ Your role: **read the issue → parse context → detect conflicts → draft com
 **Session State (draft tracking):**
 
 ```
-!`cat "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/plan_session.md" 2>/dev/null || true`
+!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/plan_session.md" 2>/dev/null || true`
 ```
 
 **Session Notes (optional, non-authoritative):**
 
 ```
-!`cat "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/session_notes.md" 2>/dev/null || true`
+!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/session_notes.md" 2>/dev/null || true`
 ```
 
 **Repository Info:**
@@ -293,8 +293,8 @@ _Looks good to post, or what should I change?_
 
 ### 9. **Save Draft & Track Session State**
 
-- Create the drafts directory: `mkdir -p "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts"`
-- Use the Write tool to save the plan to `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft.md`
+- Create the drafts directory: `mkdir -p "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts"`
+- Use the Write tool to save the plan to `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft.md`
 - Update session state file with: issue number, plan status, timestamp, posted URL (once posted)
 - Format: track all drafts/posts in this session for context in future calls
 
@@ -306,10 +306,10 @@ _Looks good to post, or what should I change?_
   REPO="$(gh repo view --json nameWithOwner --jq .nameWithOwner)"
   COMMENT_ID=$(gh api "repos/${REPO}/issues/${ISSUE_NUM}/comments" --paginate | jq -s --arg marker "<!-- gh-claude:issue-plan issue=${ISSUE_NUM} -->" '[.[][] | select(.body | contains($marker))] | last | .id // empty')
   if [ -n "${COMMENT_ID}" ]; then
-    jq -Rs '{body: .}' "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft.md" > "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft_body.json"
-    gh api "repos/${REPO}/issues/comments/${COMMENT_ID}" --method PATCH --input "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft_body.json" --jq .html_url
+    jq -Rs '{body: .}' "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft.md" > "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft_body.json"
+    gh api "repos/${REPO}/issues/comments/${COMMENT_ID}" --method PATCH --input "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft_body.json" --jq .html_url
   else
-    gh issue comment "${ISSUE_NUM}" --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft.md"
+    gh issue comment "${ISSUE_NUM}" --body-file "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft.md"
   fi
   ```
 
@@ -364,7 +364,7 @@ _Looks good to post, or what should I change?_
 - **No implementation:** Never write code, edit files, or run commands (except git/gh queries)
 - **No branches/commits:** Never create branches, commit, push, or open PRs
 - **No build/test:** Never run build, test, formatter, linter, or package-manager commands
-- **Plan-only focus:** Only safe to write `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/` and create that directory
+- **Plan-only focus:** Only safe to write `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/` and create that directory
 - **Respect focus area:** If user requests one aspect, don't plan the full issue
 
 ### Context Awareness

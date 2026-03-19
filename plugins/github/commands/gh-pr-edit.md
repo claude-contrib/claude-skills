@@ -19,7 +19,7 @@ Your role: **read the PR → parse context → detect conflicts → draft revise
 ## Prerequisites
 
 - `gh` CLI installed and authenticated (`gh auth status` to verify)
-- Directories: `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
+- Directories: `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
 - Write permissions on the repository
 
 ## Context
@@ -45,13 +45,13 @@ Your role: **read the PR → parse context → detect conflicts → draft revise
 **Session State (edit tracking):**
 
 ```
-!`cat "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/edit_session.md" 2>/dev/null || true`
+!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/edit_session.md" 2>/dev/null || true`
 ```
 
 **Session Notes (optional, non-authoritative):**
 
 ```
-!`cat "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/session_notes.md" 2>/dev/null || true`
+!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/session_notes.md" 2>/dev/null || true`
 ```
 
 **User Request:**
@@ -177,10 +177,10 @@ _Apply this edit, or tell me what to change?_
 
 ### 9. **Extract & Save**
 
-- Create the drafts directory: `mkdir -p "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts"`
+- Create the drafts directory: `mkdir -p "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts"`
 - Extract the **first line** (after `# `) as the title; everything after is the body
-- Write the title to `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_title_draft.txt`
-- Write the body to `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_body_draft.md`
+- Write the title to `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_title_draft.txt`
+- Write the body to `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_body_draft.md`
 - Update session state: track edits in this session
 
 ### 10. **Apply the Edit**
@@ -188,8 +188,8 @@ _Apply this edit, or tell me what to change?_
 ```bash
 PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#')
 gh pr edit "${PR_NUM}" \
-  --title "$(tr -d '\n' < "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_title_draft.txt")" \
-  --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_body_draft.md"
+  --title "$(tr -d '\n' < "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_title_draft.txt")" \
+  --body-file "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_body_draft.md"
 ```
 
 ### 11. **Confirm Success**

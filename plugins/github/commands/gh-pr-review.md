@@ -20,7 +20,7 @@ Your role: **read the diff → analyze for issues → draft a structured review 
 ## Prerequisites
 
 - `gh` CLI installed and authenticated (`gh auth status` to verify)
-- Directories: `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
+- Directories: `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
 - Write permissions on the repository
 - Git repo with access to local commits (for diff context)
 
@@ -53,7 +53,7 @@ Your role: **read the diff → analyze for issues → draft a structured review 
 **Session Notes (optional, non-authoritative):**
 
 ```
-!`cat "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/session_notes.md" 2>/dev/null || true`
+!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/session_notes.md" 2>/dev/null || true`
 ```
 
 **User Request (outcome):**
@@ -80,9 +80,9 @@ Your role: **read the diff → analyze for issues → draft a structured review 
 - Edit the PR title or body
 - Create branches, commit, push, or modify source files
 - Run build, test, formatter, linter, or package-manager commands
-- Write local files other than `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md` and `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/pr_diff.patch`
+- Write local files other than `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md` and `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/pr_diff.patch`
 
-(Creating the `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/` and `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/` directories is allowed.)
+(Creating the `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/` and `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/` directories is allowed.)
 
 ## Workflow
 
@@ -103,9 +103,9 @@ Your role: **read the diff → analyze for issues → draft a structured review 
 
 ```bash
 PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#')
-mkdir -p "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state"
-gh pr diff "${PR_NUM}" --patch > "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/pr_diff.patch" 2>/dev/null
-git apply --stat < "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/pr_diff.patch" 2>/dev/null || echo "(diffstat unavailable)"
+mkdir -p "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state"
+gh pr diff "${PR_NUM}" --patch > "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/pr_diff.patch" 2>/dev/null
+git apply --stat < "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/pr_diff.patch" 2>/dev/null || echo "(diffstat unavailable)"
 ```
 
 - If diff is empty, **stop and inform the user** — do not proceed with review
@@ -196,17 +196,17 @@ _Submit this review, or tell me what to change?_
 
 ### 10. **Save & Submit**
 
-- Create the drafts directory: `mkdir -p "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts"`
-- Use the Write tool to save the review body (with tracking marker appended) to `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md`
+- Create the drafts directory: `mkdir -p "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts"`
+- Use the Write tool to save the review body (with tracking marker appended) to `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md`
 - Submit based on outcome:
   ```bash
   PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#')
   # approve:
-  gh pr review "${PR_NUM}" --approve --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
+  gh pr review "${PR_NUM}" --approve --body-file "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
   # OR request-changes:
-  gh pr review "${PR_NUM}" --request-changes --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
+  gh pr review "${PR_NUM}" --request-changes --body-file "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
   # OR comment:
-  gh pr review "${PR_NUM}" --comment --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
+  gh pr review "${PR_NUM}" --comment --body-file "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
   ```
 
 ### 11. **Confirm Success**

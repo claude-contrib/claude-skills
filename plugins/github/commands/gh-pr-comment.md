@@ -19,7 +19,7 @@ Your role: **read the PR → parse context → detect conflicts → draft a help
 ## Prerequisites
 
 - `gh` CLI installed and authenticated (`gh auth status` to verify)
-- Directories: `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
+- Directories: `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
 - Write permissions on the repository
 
 ## Context
@@ -45,13 +45,13 @@ Your role: **read the PR → parse context → detect conflicts → draft a help
 **Session State (comment tracking):**
 
 ```
-!`cat "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/comment_session.md" 2>/dev/null || true`
+!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/comment_session.md" 2>/dev/null || true`
 ```
 
 **Session Notes (optional, non-authoritative):**
 
 ```
-!`cat "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/session_notes.md" 2>/dev/null || true`
+!`cat "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/session_notes.md" 2>/dev/null || true`
 ```
 
 **User Request:**
@@ -178,8 +178,8 @@ _Post this comment, or tell me what to change?_
 
 ### 9. **Save & Track Session State**
 
-- Create the drafts directory: `mkdir -p "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts"`
-- Use the Write tool to save the comment body to `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_comment_draft.md`
+- Create the drafts directory: `mkdir -p "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts"`
+- Use the Write tool to save the comment body to `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_comment_draft.md`
 - Update session state: track comments posted in this session
 
 ### 10. **Post the Comment**
@@ -187,7 +187,7 @@ _Post this comment, or tell me what to change?_
 ```bash
 PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#')
 gh pr comment "${PR_NUM}" \
-  --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_comment_draft.md"
+  --body-file "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_comment_draft.md"
 ```
 
 ### 11. **Confirm Success**
