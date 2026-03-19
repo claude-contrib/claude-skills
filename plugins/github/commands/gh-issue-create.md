@@ -36,6 +36,12 @@ Your role: **parse the description → gather repo context → detect templates 
 !`find .github/ISSUE_TEMPLATE -type f \( -name '*.md' -o -name '*.yml' -o -name '*.yaml' \) -exec basename {} \; 2>/dev/null | sort || echo "No issue templates found."`
 ```
 
+**Potential Duplicates (open issues matching description):**
+
+```
+!`if [ -n "$ARGUMENTS" ]; then gh issue list --state open --search "$ARGUMENTS" --limit 5 --json number,title --jq '.[] | "#\(.number): \(.title)"' 2>/dev/null || echo "(search unavailable)"; else echo "(no description to search against)"; fi`
+```
+
 **Session State (draft tracking):**
 
 ```
