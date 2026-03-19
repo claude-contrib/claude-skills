@@ -52,7 +52,7 @@ Your role: **analyze the branch → gather diff and commit context → detect te
 **Sensitive Content Scan:**
 
 ```
-!`DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null || echo "main"); git diff "${DEFAULT_BRANCH}"...HEAD 2>/dev/null | grep -inE '(api[_-]?key|secret[_-]?key|password|token|credential|private[_-]?key|aws_access|aws_secret)\s*[:=]' | head -10 || echo "No sensitive patterns detected."`
+!`DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null || echo "main"); git diff "${DEFAULT_BRANCH}"...HEAD 2>/dev/null | grep -inE '(api[_-]?key|secret[_-]?key|password|access[_-]?token|auth[_-]?token|refresh[_-]?token|private[_-]?key|client[_-]?secret|aws_access_key_id|aws_secret_access_key)\s*[:=]' | head -10 || echo "No sensitive patterns detected."`
 ```
 
 **Available PR Templates:**

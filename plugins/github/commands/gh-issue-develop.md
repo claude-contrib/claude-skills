@@ -63,10 +63,16 @@ Your role: **find the draft plan → expand it into an execution-ready plan → 
 !`echo "Branch: $(git branch --show-current 2>/dev/null || echo unknown)"; DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null || echo "main"); echo "Default: ${DEFAULT_BRANCH}"`
 ```
 
-**Existing PR for branch:**
+**Existing PR (current branch):**
 
 ```
-!`ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo ""); if [ -n "${CURRENT_BRANCH}" ] && [ "${CURRENT_BRANCH}" != "$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null)" ]; then gh pr list --head "${CURRENT_BRANCH}" --state open --json number,title,url --jq '.[] | "PR #\(.number): \(.title) (\(.url))"' 2>/dev/null || true; fi; TITLE_SLUG=$(gh issue view "${ISSUE_NUM}" --json title --jq .title 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-' | sed 's/^-//;s/-$//' | cut -c1-50); GENERATED_BRANCH="${ISSUE_NUM}/${TITLE_SLUG}"; if [ "${GENERATED_BRANCH}" != "${CURRENT_BRANCH}" ]; then gh pr list --head "${GENERATED_BRANCH}" --state open --json number,title,url --jq '.[] | "PR #\(.number): \(.title) (\(.url))"' 2>/dev/null || true; fi`
+!`CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo ""); DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null || echo "main"); if [ -n "${CURRENT_BRANCH}" ] && [ "${CURRENT_BRANCH}" != "${DEFAULT_BRANCH}" ]; then gh pr list --head "${CURRENT_BRANCH}" --state open --json number,title,url --jq '.[] | "PR #\(.number): \(.title) (\(.url))"' 2>/dev/null || true; fi`
+```
+
+**Existing PR (expected branch):**
+
+```
+!`ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo ""); TITLE_SLUG=$(gh issue view "${ISSUE_NUM}" --json title --jq .title 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-' | sed 's/^-//;s/-$//' | cut -c1-50); GENERATED="${ISSUE_NUM}/${TITLE_SLUG}"; if [ "${GENERATED}" != "${CURRENT_BRANCH}" ]; then gh pr list --head "${GENERATED}" --state open --json number,title,url --jq '.[] | "PR #\(.number): \(.title) (\(.url))"' 2>/dev/null || true; fi`
 ```
 
 **Session State:**

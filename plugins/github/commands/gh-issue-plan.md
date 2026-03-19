@@ -43,7 +43,7 @@ Your role: **read the issue → parse context → detect conflicts → draft a h
 **Recent Comments (conflict detection):**
 
 ```
-!`ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh issue view "${ISSUE_NUM}" --json comments 2>/dev/null | jq -r '.comments[-3:] | map("\(.author.login) (\(.createdAt | split("T")[0])): \(.body[:100])") | .[]' || echo "Unable to fetch comments."`
+!`ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh issue view "${ISSUE_NUM}" --json comments 2>/dev/null | jq -r '.comments[-5:] | map("\(.author.login) (\(.createdAt | split("T")[0])): \(.body[:120])") | .[]' || echo "Unable to fetch comments."`
 ```
 
 **Session State (draft tracking):**
