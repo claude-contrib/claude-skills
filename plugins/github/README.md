@@ -27,7 +27,7 @@ Draft and create a new GitHub issue with a structured title and body.
 /gh-issue-create label:bug,urgent search results are empty for non-ASCII queries
 ```
 
-The entire argument is the issue description. Labels can be passed with `--label label1,label2` or `label:name` prefixes. If the repo has `.github/ISSUE_TEMPLATE/` templates, the best match is auto-detected and offered. The body is structured by issue type (bug, feature, general) with appropriate sections (Steps to Reproduce, Acceptance Criteria, etc.).
+The entire argument is the issue description. Supports `--label label1,label2` (or `label:name` prefixes) and `--assignee username` flags. If the repo has `.github/ISSUE_TEMPLATE/` templates, the best match is auto-detected and offered. The body is structured by issue type (bug, feature, general) with appropriate sections (Steps to Reproduce, Acceptance Criteria, etc.).
 
 ---
 
@@ -84,7 +84,7 @@ Draft and create a new GitHub pull request from the current branch.
 /gh-pr-create fixes #42 --base develop
 ```
 
-The title and body are generated from the branch's diff and commits. An optional description argument refines the output. Supports `--draft`, `--base`, `--label`, and `--reviewer` flags. If the repo has a `.github/PULL_REQUEST_TEMPLATE.md`, the template structure is used. The body follows a Summary, Changes, Risk Level, Testing, Impact structure (sections omitted when not relevant).
+The title and body are generated from the branch's diff and commits. An optional description argument refines the output. Supports `--draft`, `--base`, `--label`, `--reviewer`, and `--assignee` flags. If the repo has a `.github/PULL_REQUEST_TEMPLATE.md`, the template structure is used. The body follows a Summary, Changes, Risk Level, Testing, Impact structure (sections omitted when not relevant).
 
 ---
 

@@ -3,7 +3,7 @@ description: >
   Drafts a new GitHub issue with title and structured body from a description,
   detects repo issue templates, validates for quality, then creates it after
   explicit user confirmation.
-argument-hint: "<description of the issue> [--label label1,label2]"
+argument-hint: "<description of the issue> [--label label1,label2] [--assignee username]"
 disable-model-invocation: true
 allowed-tools: Bash(*), Write
 ---

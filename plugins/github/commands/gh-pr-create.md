@@ -3,7 +3,7 @@ description: >
   Drafts a new GitHub pull request with title and structured body generated from
   the current branch's diff and commits, detects PR templates, validates for
   quality, then creates it after explicit user confirmation.
-argument-hint: "[description or intent] [--draft] [--base branch] [--label label1,label2] [--reviewer user1,user2]"
+argument-hint: "[description or intent] [--draft] [--base branch] [--label label1,label2] [--reviewer user1,user2] [--assignee username]"
 disable-model-invocation: true
 allowed-tools: Bash(*), Write
 ---

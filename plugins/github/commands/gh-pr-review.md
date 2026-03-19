@@ -67,10 +67,10 @@ Your role: **read the diff → analyze for issues → draft a structured review 
 **User Request (focus area):**
 
 ```
-!`echo "$ARGUMENTS" | cut -d' ' -f3- | xargs || true`
+!`if echo "$ARGUMENTS" | awk '{print $2}' | grep -qxE 'approve|request-changes|comment'; then echo "$ARGUMENTS" | cut -d' ' -f3- | xargs; else echo "$ARGUMENTS" | cut -d' ' -f2- | xargs; fi 2>/dev/null || true`
 ```
 
-(Strips the PR number and optional outcome keyword; remaining text is the focus area.)
+(Strips the PR number and, if word 2 is a valid outcome keyword, strips it too; remaining text is the focus area.)
 
 ## Forbidden Actions
 
