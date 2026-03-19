@@ -297,7 +297,8 @@ mkdir -p "${SESSION_DIR}/drafts"
 gh pr create \
   --draft \
   --title "[WIP] ${ISSUE_TITLE}" \
-  --body-file "${SESSION_DIR}/drafts/develop_pr_body.md"
+  --body-file "${SESSION_DIR}/drafts/develop_pr_body.md" \
+  --base "${BASE_BRANCH}"
 ```
 
 **Draft PR body structure** (save to `${SESSION_DIR}/drafts/develop_pr_body.md` before running `gh pr create`):
@@ -410,3 +411,5 @@ Closes #N
 | Plan has unresolved open questions | Warn: "Plan has open questions. Proceed anyway?"                            |
 | Plan has unresolved dependencies   | Warn: "Dependency PR #N is still open. Proceed anyway?"                     |
 | Issue is closed                    | Warn: "Issue #N is closed. Still create development branch?"                |
+| Validation detects issues          | Revise in step 5; do NOT present flawed execution plan                      |
+| User interrupts during execution   | Show which steps completed; suggest recovery for partial state              |

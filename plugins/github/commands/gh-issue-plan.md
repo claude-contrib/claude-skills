@@ -358,6 +358,8 @@ _Looks good to post, or what should I change?_
 | Existing plan found                 | Update it instead of creating duplicate                 |
 | Conflict detected                   | Show conflict, ask user to confirm before proceeding    |
 | Linked issue unavailable            | Note it, continue with what you have                    |
+| Validation detects issues           | Revise in step 6; do NOT present flawed plan            |
+| User interrupts drafting            | Ask: "Should I save the draft, discard it, or resume?"  |
 
 ---
 
