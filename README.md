@@ -23,7 +23,7 @@ Type a command in Claude Code. Claude reads the skill's prompt template, execute
 
 Install `claude` separately: [Claude Code installation guide](https://docs.anthropic.com/en/docs/claude-code/setup)
 
-## Installation
+## Quickstart
 
 **1. Register the marketplace** in `~/.claude/settings.json`:
 
