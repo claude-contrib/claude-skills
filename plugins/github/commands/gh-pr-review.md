@@ -115,10 +115,30 @@ git apply --stat < "${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}
 
 - **If focus area provided:** Review with that lens (e.g., "security", "performance")
 - **If empty:** Review comprehensively (logic, bugs, error handling, architecture)
-- Analyze for:
-  - **High severity:** Bugs, security/data-loss risks, logic errors, missing error handling
-  - **Medium severity:** Edge cases, optimization opportunities, architectural concerns
-  - **Low severity:** Minor improvements, clarity enhancements (non-blocking)
+- Classify each finding using these criteria:
+
+  **High — must fix before merge (blocks approval):**
+  - Incorrect behavior in normal usage paths (bugs in happy path or common error paths)
+  - Data loss, corruption, or security vulnerability (injection, auth bypass, secrets exposure)
+  - Crash, panic, or unhandled error that reaches end users
+  - Race condition or concurrency issue with observable impact under expected load
+  - Breaking change to public API/contract without migration path
+
+  **Medium — should fix, not strictly blocking (warrants "request changes" if multiple):**
+  - Wrong result for uncommon but realistic inputs (edge case a real user could hit)
+  - Missing validation at a system boundary (user input, external API, file I/O)
+  - Performance issue that degrades noticeably under expected load
+  - Error handling that swallows context or returns misleading messages
+  - Architectural concern that will significantly complicate near-term planned work
+
+  **Low — advisory, never blocking (informational only):**
+  - Naming, readability, or clarity improvements
+  - Redundant code that does not affect correctness
+  - Missing handling for truly unlikely or contrived scenarios
+  - Style inconsistencies not caught by linters
+  - Documentation gaps in internal (non-public) code
+
+  **Borderline test:** "Could a real user trigger this under normal or reasonably foreseeable conditions?" Yes → High or Medium. No → Low.
 
 ### 5. **Determine Outcome**
 
@@ -148,7 +168,7 @@ Before presenting to user, conduct a validation review:
 | **Tone**                 | Professional, constructive, collaborative?      | Revise to remove dismissive/condescending language      |
 | **Specificity**          | References exact files, lines, code context?    | Add specific locations and code references              |
 | **Findings accuracy**    | Each finding cites actual code from the diff?   | Remove findings not supported by diff evidence          |
-| **Severity calibration** | Severity levels match actual impact?            | Adjust: don't inflate minor issues to High              |
+| **Severity calibration** | Each severity matches step 4 criteria and the borderline test? | Re-classify using "could a real user trigger this?" test |
 | **Suggestions**          | Concrete fixes offered, not just criticism?     | Add actionable suggestions for each finding             |
 | **Outcome alignment**    | Outcome matches the severity of findings?       | Approve should have no High findings; adjust if needed  |
 | **Redundancy**           | Doesn't repeat points from existing reviews?    | Check review history; add new perspective only          |
@@ -220,10 +240,11 @@ _Submit this review, or tell me what to change?_
 
 ### Review Scope & Severity
 
-- **Prioritize:** Bugs, security/data-loss issues, logic errors, missing error handling
-- **Medium:** Edge cases, optimization opportunities, architectural concerns
-- **Low:** Code clarity, style improvements, minor refactors
+- **High:** Incorrect behavior in normal paths, data loss/security, crashes, race conditions, breaking API changes — blocks approval
+- **Medium:** Edge cases a real user could hit, missing boundary validation, performance degradation, misleading errors, near-term architectural risk — warrants "request changes" if multiple
+- **Low:** Naming/readability, redundant code, handling for contrived scenarios, style, internal doc gaps — advisory only, never blocking
 - **Skip:** Purely stylistic comments, linter-detectable issues, unrelated legacy code issues
+- **Borderline test:** "Could a real user trigger this under normal or reasonably foreseeable conditions?" Yes → High or Medium. No → Low.
 - **Balance:** Provide constructive feedback without being nitpicky
 
 ### Content & Structure
