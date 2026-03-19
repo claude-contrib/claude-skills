@@ -4,7 +4,7 @@ description: >
   it after user confirmation. Supports approve, request-changes, or comment
   outcomes. Accepts an optional outcome and/or focus area argument, e.g.,
   "approve", "request-changes", or "focus on security."
-argument-hint: "[approve|request-changes|comment] [focus area]"
+argument-hint: "<pr-number> [approve|request-changes|comment] [focus area]"
 disable-model-invocation: true
 allowed-tools: Bash(*), Write
 ---
@@ -20,29 +20,34 @@ Your role: **read the diff → analyze for issues → draft a structured review 
 ## Prerequisites
 
 - `gh` CLI installed and authenticated (`gh auth status` to verify)
-- Environment: `$GH_PR_NUMBER` (set or pass explicitly)
 - Directories: `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
 - Write permissions on the repository
 - Git repo with access to local commits (for diff context)
 
 ## Context
 
+**PR Number:**
+
+```
+!`echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'`
+```
+
 **Current Pull Request (always fresh):**
 
 ```
-!`gh pr view "${GH_PR_NUMBER}" --json number,title,url,body,labels,comments,isDraft,state,reviewDecision,reviews,commits 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_pr_view.jq" || echo "Unable to fetch PR. Check the PR number and gh auth status."`
+!`PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh pr view "${PR_NUM}" --json number,title,url,body,labels,comments,isDraft,state,reviewDecision,reviews,commits 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_pr_view.jq" || echo "Unable to fetch PR. Check the PR number and gh auth status."`
 ```
 
 **Review History (always fresh):**
 
 ```
-!`gh api "repos/$(gh repo view --json nameWithOwner --jq .nameWithOwner)/pulls/${GH_PR_NUMBER}/reviews" --paginate 2>/dev/null | jq -s '[.[][] | {id: .id, state: .state, submitted_at: .submitted_at, body: (.body // "")}]' || echo "Unable to fetch review history."`
+!`PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh api "repos/$(gh repo view --json nameWithOwner --jq .nameWithOwner)/pulls/${PR_NUM}/reviews" --paginate 2>/dev/null | jq -s '[.[][] | {id: .id, state: .state, submitted_at: .submitted_at, body: (.body // "")}]' || echo "Unable to fetch review history."`
 ```
 
 **Current Commit SHA:**
 
 ```
-!`gh pr view "${GH_PR_NUMBER}" --json headRefOid --jq .headRefOid 2>/dev/null || echo "unknown"`
+!`PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh pr view "${PR_NUM}" --json headRefOid --jq .headRefOid 2>/dev/null || echo "unknown"`
 ```
 
 **Session Notes (optional, non-authoritative):**
@@ -54,18 +59,18 @@ Your role: **read the diff → analyze for issues → draft a structured review 
 **User Request (outcome):**
 
 ```
-!`echo "$ARGUMENTS" | awk '{print $1}' | grep -xE 'approve|request-changes|comment' || true`
+!`echo "$ARGUMENTS" | awk '{print $2}' | grep -xE 'approve|request-changes|comment' || true`
 ```
 
-(If empty, determine outcome based on findings. Outcome keyword must be the first word of arguments.)
+(PR number is the first word; outcome keyword must be the second word of arguments.)
 
 **User Request (focus area):**
 
 ```
-!`echo "$ARGUMENTS" | sed -E 's/^(approve|request-changes|comment) ?//' | xargs || true`
+!`echo "$ARGUMENTS" | cut -d' ' -f3- | xargs || true`
 ```
 
-(Strips the leading outcome keyword if present; otherwise passes the full arguments as focus area.)
+(Strips the PR number and optional outcome keyword; remaining text is the focus area.)
 
 ## Forbidden Actions
 
@@ -89,7 +94,7 @@ Your role: **read the diff → analyze for issues → draft a structured review 
 
 ### 2. **Validate & Fetch**
 
-- Verify `$GH_PR_NUMBER` is set; if not, ask the user
+- Parse PR number from the first argument (`$ARGUMENTS`); if missing or not a number, ask the user
 - Fetch PR details, review history, and commit SHA; if any fetch fails, stop and show error
 - Check user has write permissions to the repo (auth required)
 - Note PR state: is it a draft, open, in review, approved, or merged?
@@ -97,8 +102,9 @@ Your role: **read the diff → analyze for issues → draft a structured review 
 ### 3. **Fetch & Analyze Diff**
 
 ```bash
+PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#')
 mkdir -p "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state"
-gh pr diff "${GH_PR_NUMBER}" --patch > "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/pr_diff.patch" 2>/dev/null
+gh pr diff "${PR_NUM}" --patch > "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/pr_diff.patch" 2>/dev/null
 git apply --stat < "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/state/pr_diff.patch" 2>/dev/null || echo "(diffstat unavailable)"
 ```
 
@@ -194,12 +200,13 @@ _Submit this review, or tell me what to change?_
 - Use the Write tool to save the review body (with tracking marker appended) to `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md`
 - Submit based on outcome:
   ```bash
+  PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#')
   # approve:
-  gh pr review "${GH_PR_NUMBER}" --approve --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
+  gh pr review "${PR_NUM}" --approve --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
   # OR request-changes:
-  gh pr review "${GH_PR_NUMBER}" --request-changes --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
+  gh pr review "${PR_NUM}" --request-changes --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
   # OR comment:
-  gh pr review "${GH_PR_NUMBER}" --comment --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
+  gh pr review "${PR_NUM}" --comment --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_review_draft.md"
   ```
 
 ### 11. **Confirm Success**
@@ -262,7 +269,7 @@ _Submit this review, or tell me what to change?_
 
 | Scenario                            | Action                                                              |
 | ----------------------------------- | ------------------------------------------------------------------- |
-| `GH_PR_NUMBER` not set              | Ask user: "Which PR? (use `#123` or set `$GH_PR_NUMBER`)"           |
+| PR number missing from arguments    | Ask user: "Which PR? Pass the number as the first argument, e.g. `/gh-pr-review 42 approve`" |
 | `gh pr view` fails                  | Show error, suggest `gh auth status`                                |
 | Diff is empty                       | Stop immediately; inform user and do not proceed                    |
 | Diff is massive (1000+ lines)       | Ask: "Focus on critical files only?" and list scope                 |

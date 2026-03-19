@@ -3,7 +3,7 @@ description: >
   Edits a GitHub pull request title and/or body according to requested changes,
   parses context intelligently, detects conflicts, validates for quality, then
   applies the edit after explicit user confirmation.
-argument-hint: "[what to change or edit request]"
+argument-hint: "<pr-number> [what to change or edit request]"
 disable-model-invocation: true
 allowed-tools: Bash(*), Write
 ---
@@ -19,22 +19,27 @@ Your role: **read the PR → parse context → detect conflicts → draft revise
 ## Prerequisites
 
 - `gh` CLI installed and authenticated (`gh auth status` to verify)
-- Environment: `$GH_PR_NUMBER` (set or pass explicitly)
 - Directories: `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
 - Write permissions on the repository
 
 ## Context
 
+**PR Number:**
+
+```
+!`echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'`
+```
+
 **Current Pull Request (always fresh):**
 
 ```
-!`gh pr view "${GH_PR_NUMBER}" --json number,title,url,body,labels,comments,isDraft,state,reviewDecision,reviews,commits 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_pr_view.jq" || echo "Unable to fetch PR. Check the PR number and gh auth status."`
+!`PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh pr view "${PR_NUM}" --json number,title,url,body,labels,comments,isDraft,state,reviewDecision,reviews,commits 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_pr_view.jq" || echo "Unable to fetch PR. Check the PR number and gh auth status."`
 ```
 
 **Recent Comments (conflict detection):**
 
 ```
-!`gh pr view "${GH_PR_NUMBER}" --json comments 2>/dev/null | jq -r '.comments[-2:] | map("\(.author.login) (\(.createdAt | split("T")[0])): \(.body[:80])") | .[]' || echo "Unable to fetch comments."`
+!`PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh pr view "${PR_NUM}" --json comments 2>/dev/null | jq -r '.comments[-2:] | map("\(.author.login) (\(.createdAt | split("T")[0])): \(.body[:80])") | .[]' || echo "Unable to fetch comments."`
 ```
 
 **Session State (edit tracking):**
@@ -59,7 +64,7 @@ Your role: **read the PR → parse context → detect conflicts → draft revise
 
 ### 1. **Validate & Fetch**
 
-- Verify `$GH_PR_NUMBER` is set; if not, ask the user
+- Parse PR number from the first argument (`$ARGUMENTS`); if missing or not a number, ask the user
 - Fetch PR details (number, title, body, state, labels, reviews, comments); if fetch fails, stop and show the error
 - Check user has write permissions to the repo (auth required)
 - Note PR state (draft/open/merged/closed) and review decision; confirm edits for merged PRs
@@ -181,7 +186,8 @@ _Apply this edit, or tell me what to change?_
 ### 10. **Apply the Edit**
 
 ```bash
-gh pr edit "${GH_PR_NUMBER}" \
+PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#')
+gh pr edit "${PR_NUM}" \
   --title "$(tr -d '\n' < "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_title_draft.txt")" \
   --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_body_draft.md"
 ```
@@ -238,7 +244,7 @@ gh pr edit "${GH_PR_NUMBER}" \
 
 | Scenario                   | Action                                                             |
 | -------------------------- | ------------------------------------------------------------------ |
-| `GH_PR_NUMBER` not set     | Ask user: "Which PR? (use `#123` or set `$GH_PR_NUMBER`)"          |
+| PR number missing from arguments | Ask user: "Which PR? Pass the number as the first argument, e.g. `/gh-pr-edit 42 ...`" |
 | `gh pr view` fails         | Show error, suggest `gh auth status`                               |
 | Title >=72 characters      | Flag in validation (step 6); ask user to shorten before presenting |
 | Markdown body is malformed | Show preview in validation; ask for revision before presenting     |

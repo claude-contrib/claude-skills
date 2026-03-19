@@ -3,7 +3,7 @@ description: >
   Drafts a GitHub pull request comment based on PR context and intent, parses
   context intelligently, detects conflicts, validates for quality and
   appropriateness, then posts it after explicit user confirmation.
-argument-hint: "[comment intent or specific text]"
+argument-hint: "<pr-number> [comment intent or specific text]"
 disable-model-invocation: true
 allowed-tools: Bash(*), Write
 ---
@@ -19,22 +19,27 @@ Your role: **read the PR → parse context → detect conflicts → draft a help
 ## Prerequisites
 
 - `gh` CLI installed and authenticated (`gh auth status` to verify)
-- Environment: `$GH_PR_NUMBER` (set or pass explicitly)
 - Directories: `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
 - Write permissions on the repository
 
 ## Context
 
+**PR Number:**
+
+```
+!`echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'`
+```
+
 **Current Pull Request (always fresh):**
 
 ```
-!`gh pr view "${GH_PR_NUMBER}" --json number,title,url,body,labels,comments,isDraft,state,reviewDecision,reviews,commits 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_pr_view.jq" || echo "Unable to fetch PR. Check the PR number and gh auth status."`
+!`PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh pr view "${PR_NUM}" --json number,title,url,body,labels,comments,isDraft,state,reviewDecision,reviews,commits 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_pr_view.jq" || echo "Unable to fetch PR. Check the PR number and gh auth status."`
 ```
 
 **Recent Comments (for redundancy & context detection):**
 
 ```
-!`gh pr view "${GH_PR_NUMBER}" --json comments 2>/dev/null | jq -r '.comments[-5:] | map("\(.author.login) (\(.createdAt | split("T")[0])): \(.body[:120])") | .[]' || echo "Unable to fetch comments."`
+!`PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh pr view "${PR_NUM}" --json comments 2>/dev/null | jq -r '.comments[-5:] | map("\(.author.login) (\(.createdAt | split("T")[0])): \(.body[:120])") | .[]' || echo "Unable to fetch comments."`
 ```
 
 **Session State (comment tracking):**
@@ -59,7 +64,7 @@ Your role: **read the PR → parse context → detect conflicts → draft a help
 
 ### 1. **Validate & Fetch**
 
-- Verify `$GH_PR_NUMBER` is set; if not, ask the user
+- Parse PR number from the first argument (`$ARGUMENTS`); if missing or not a number, ask the user
 - Fetch PR details (title, body, state, reviews, comments); if fetch fails, stop and show the error
 - Check user has write permissions to the repo (auth required)
 - Note PR state (draft/open/merged/closed) and existing comments for context
@@ -180,7 +185,8 @@ _Post this comment, or tell me what to change?_
 ### 10. **Post the Comment**
 
 ```bash
-gh pr comment "${GH_PR_NUMBER}" \
+PR_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#')
+gh pr comment "${PR_NUM}" \
   --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/pr_comment_draft.md"
 ```
 
@@ -242,7 +248,7 @@ gh pr comment "${GH_PR_NUMBER}" \
 
 | Scenario                    | Action                                                        |
 | --------------------------- | ------------------------------------------------------------- |
-| `GH_PR_NUMBER` not set      | Ask user: "Which PR? (use `#123` or set `$GH_PR_NUMBER`)"     |
+| PR number missing from arguments | Ask user: "Which PR? Pass the number as the first argument, e.g. `/gh-pr-comment 42 ...`" |
 | `gh pr view` fails          | Show error, suggest `gh auth status`                          |
 | Intent is ambiguous          | Ask: "Do you want to [option A] or [option B]?"               |
 | Comment tone is dismissive   | Revise in step 6; make it constructive                        |

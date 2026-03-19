@@ -3,7 +3,7 @@ description: >
   Edits a GitHub issue title and/or body according to requested changes, parses
   context intelligently, detects conflicts, validates for quality, then applies
   the edit after explicit user confirmation.
-argument-hint: "[what to change or edit request]"
+argument-hint: "<issue-number> [what to change or edit request]"
 disable-model-invocation: true
 allowed-tools: Bash(*), Write
 ---
@@ -19,22 +19,27 @@ Your role: **read the issue → parse context → detect conflicts → draft rev
 ## Prerequisites
 
 - `gh` CLI installed and authenticated (`gh auth status` to verify)
-- Environment: `$GH_ISSUE_NUMBER` (set or pass explicitly)
 - Directories: `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
 - Write permissions on the repository
 
 ## Context
 
+**Issue Number:**
+
+```
+!`echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'`
+```
+
 **Current Issue (always fresh):**
 
 ```
-!`gh issue view "${GH_ISSUE_NUMBER}" --json number,title,url,body,state,labels,comments 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_issue_view.jq" || echo "Unable to fetch issue. Check the issue number and gh auth status."`
+!`ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh issue view "${ISSUE_NUM}" --json number,title,url,body,state,labels,comments 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_issue_view.jq" || echo "Unable to fetch issue. Check the issue number and gh auth status."`
 ```
 
 **Recent Comments (conflict detection):**
 
 ```
-!`gh issue view "${GH_ISSUE_NUMBER}" --json comments 2>/dev/null | jq -r '.comments[-2:] | map("\(.author.login) (\(.createdAt | split("T")[0])): \(.body[:80])") | .[]' || echo "Unable to fetch comments."`
+!`ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh issue view "${ISSUE_NUM}" --json comments 2>/dev/null | jq -r '.comments[-2:] | map("\(.author.login) (\(.createdAt | split("T")[0])): \(.body[:80])") | .[]' || echo "Unable to fetch comments."`
 ```
 
 **Session State (edit tracking):**
@@ -59,7 +64,7 @@ Your role: **read the issue → parse context → detect conflicts → draft rev
 
 ### 1. **Validate & Fetch**
 
-- Verify `$GH_ISSUE_NUMBER` is set; if not, ask the user
+- Parse issue number from the first argument (`$ARGUMENTS`); if missing or not a number, ask the user
 - Fetch issue details (number, title, body, state, labels, comments); if fetch fails, stop and show the error
 - Check user has write permissions to the repo (auth required)
 - Note the current issue state (open/closed); confirm edits for closed issues
@@ -180,7 +185,8 @@ _Apply this edit, or tell me what to change?_
 ### 10. **Apply the Edit**
 
 ```bash
-gh issue edit "${GH_ISSUE_NUMBER}" \
+ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#')
+gh issue edit "${ISSUE_NUM}" \
   --title "$(tr -d '\n' < "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_title_draft.txt")" \
   --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_body_draft.md"
 ```
@@ -231,7 +237,7 @@ gh issue edit "${GH_ISSUE_NUMBER}" \
 
 | Scenario                   | Action                                                             |
 | -------------------------- | ------------------------------------------------------------------ |
-| `GH_ISSUE_NUMBER` not set  | Ask user: "Which issue? (use `#123` or set `$GH_ISSUE_NUMBER`)"    |
+| Issue number missing from arguments | Ask user: "Which issue? Pass the number as the first argument, e.g. `/gh-issue-edit 42 ...`" |
 | `gh issue view` fails      | Show error, suggest `gh auth status`                               |
 | Title ≥72 characters       | Flag in validation (step 6); ask user to shorten before presenting |
 | Markdown body is malformed | Show preview in validation; ask for revision before presenting     |

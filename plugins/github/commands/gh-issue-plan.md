@@ -4,7 +4,7 @@ description: >
   issue with TDD-style task breakdown and performance estimates. Posts as comment
   after explicit user confirmation. Accepts an optional focus area argument to
   scope the plan.
-argument-hint: "[focus area or aspect to plan]"
+argument-hint: "<issue-number> [focus area or aspect to plan]"
 disable-model-invocation: true
 allowed-tools: Bash(*), Write
 ---
@@ -20,23 +20,28 @@ Your role: **read the issue → parse context → detect conflicts → draft com
 ## Prerequisites
 
 - `gh` CLI installed and authenticated (`gh auth status` to verify)
-- Environment: `$GH_ISSUE_NUMBER` (set or pass explicitly)
 - Directories: `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable (for draft state tracking)
 - Write permissions on the repository
 - Git repo recommended (for working-tree context, optional)
 
 ## Context
 
+**Issue Number:**
+
+```
+!`echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'`
+```
+
 **Current Issue (always fresh):**
 
 ```
-!`gh issue view "${GH_ISSUE_NUMBER}" --json number,title,url,body,state,labels,comments 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_issue_view.jq" || echo "Unable to fetch issue. Check the issue number and gh auth status."`
+!`ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh issue view "${ISSUE_NUM}" --json number,title,url,body,state,labels,comments 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_issue_view.jq" || echo "Unable to fetch issue. Check the issue number and gh auth status."`
 ```
 
 **Recent Comments (conflict detection):**
 
 ```
-!`gh issue view "${GH_ISSUE_NUMBER}" --json comments 2>/dev/null | jq -r '.comments[-3:] | map("\(.author.login) (\(.createdAt | split("T")[0])): \(.body[:100])") | .[]' || echo "Unable to fetch comments."`
+!`ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh issue view "${ISSUE_NUM}" --json comments 2>/dev/null | jq -r '.comments[-3:] | map("\(.author.login) (\(.createdAt | split("T")[0])): \(.body[:100])") | .[]' || echo "Unable to fetch comments."`
 ```
 
 **Session State (draft tracking):**
@@ -67,7 +72,7 @@ Your role: **read the issue → parse context → detect conflicts → draft com
 
 ### 1. **Validate & Fetch**
 
-- Verify `$GH_ISSUE_NUMBER` is set; if not, ask the user
+- Parse issue number from the first argument (`$ARGUMENTS`); if missing or not a number, ask the user
 - Fetch issue details (title, body, state, labels, comments); if fetch fails, stop and show error
 - Check user has write permissions to the repo (auth required)
 - **Optional:** Check working tree status for context:
@@ -297,13 +302,14 @@ _Looks good to post, or what should I change?_
 
 - Find existing plan comment and post or update (run as a single block to preserve variables):
   ```bash
+  ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#')
   REPO="$(gh repo view --json nameWithOwner --jq .nameWithOwner)"
-  COMMENT_ID=$(gh api "repos/${REPO}/issues/${GH_ISSUE_NUMBER}/comments" --paginate | jq -s --arg marker "<!-- gh-claude:issue-plan issue=${GH_ISSUE_NUMBER} -->" '[.[][] | select(.body | contains($marker))] | last | .id // empty')
+  COMMENT_ID=$(gh api "repos/${REPO}/issues/${ISSUE_NUM}/comments" --paginate | jq -s --arg marker "<!-- gh-claude:issue-plan issue=${ISSUE_NUM} -->" '[.[][] | select(.body | contains($marker))] | last | .id // empty')
   if [ -n "${COMMENT_ID}" ]; then
     jq -Rs '{body: .}' "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft.md" > "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft_body.json"
     gh api "repos/${REPO}/issues/comments/${COMMENT_ID}" --method PATCH --input "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft_body.json" --jq .html_url
   else
-    gh issue comment "${GH_ISSUE_NUMBER}" --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft.md"
+    gh issue comment "${ISSUE_NUM}" --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_plan_draft.md"
   fi
   ```
 
@@ -351,7 +357,7 @@ _Looks good to post, or what should I change?_
 - **Files section per task:** Explicit list of Create/Modify/Test files with line numbers
 - **Steps numbered 1-5:** Write test → Verify fail → Implement → Verify pass → Commit
 - **Open Questions & Dependencies:** List anything blocking implementation; omit if none
-- **Tracking marker:** Always append at the end: `<!-- gh-claude:issue-plan issue=${GH_ISSUE_NUMBER} -->`
+- **Tracking marker:** Always append at the end: `<!-- gh-claude:issue-plan issue=${ISSUE_NUM} -->`
 
 ### Safety & Scope Boundaries
 
@@ -386,7 +392,7 @@ _Looks good to post, or what should I change?_
 
 | Scenario                          | Action                                                          |
 | --------------------------------- | --------------------------------------------------------------- |
-| `GH_ISSUE_NUMBER` not set         | Ask user: "Which issue? (use `#123` or set `$GH_ISSUE_NUMBER`)" |
+| Issue number missing from arguments | Ask user: "Which issue? Pass the number as the first argument, e.g. `/gh-issue-plan 42 ...`" |
 | `gh issue view` fails             | Show error, suggest `gh auth status`                            |
 | Git unavailable                   | Skip working-tree check, proceed without that context           |
 | Issue context unclear             | Use Open Questions; ask user to clarify before drafting         |

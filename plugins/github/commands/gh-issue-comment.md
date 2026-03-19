@@ -3,7 +3,7 @@ description: >
   Drafts a GitHub issue comment based on issue context and intent, parses
   context intelligently, detects conflicts, validates for quality and
   appropriateness, then posts it after explicit user confirmation.
-argument-hint: "[comment intent or specific text]"
+argument-hint: "<issue-number> [comment intent or specific text]"
 disable-model-invocation: true
 allowed-tools: Bash(*), Write
 ---
@@ -19,22 +19,27 @@ Your role: **read the issue → parse context → detect conflicts → draft a h
 ## Prerequisites
 
 - `gh` CLI installed and authenticated (`gh auth status` to verify)
-- Environment: `$GH_ISSUE_NUMBER` (set or pass explicitly)
 - Directories: `~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
 - Write permissions on the repository
 
 ## Context
 
+**Issue Number:**
+
+```
+!`echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'`
+```
+
 **Current Issue (always fresh):**
 
 ```
-!`gh issue view "${GH_ISSUE_NUMBER}" --json number,title,url,body,state,labels,comments 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_issue_view.jq" || echo "Unable to fetch issue. Check the issue number and gh auth status."`
+!`ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh issue view "${ISSUE_NUM}" --json number,title,url,body,state,labels,comments 2>/dev/null | jq -r -f "${CLAUDE_PLUGIN_ROOT}/queries/gh_issue_view.jq" || echo "Unable to fetch issue. Check the issue number and gh auth status."`
 ```
 
 **Recent Comments (for redundancy & context detection):**
 
 ```
-!`gh issue view "${GH_ISSUE_NUMBER}" --json comments 2>/dev/null | jq -r '.comments[-5:] | map("\(.author.login) (\(.createdAt | split("T")[0])): \(.body[:120])") | .[]' || echo "Unable to fetch comments."`
+!`ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#'); gh issue view "${ISSUE_NUM}" --json comments 2>/dev/null | jq -r '.comments[-5:] | map("\(.author.login) (\(.createdAt | split("T")[0])): \(.body[:120])") | .[]' || echo "Unable to fetch comments."`
 ```
 
 **Session State (comment tracking):**
@@ -59,7 +64,7 @@ Your role: **read the issue → parse context → detect conflicts → draft a h
 
 ### 1. **Validate & Fetch**
 
-- Verify `$GH_ISSUE_NUMBER` is set; if not, ask the user
+- Parse issue number from the first argument (`$ARGUMENTS`); if missing or not a number, ask the user
 - Fetch issue details (number, title, body, state, labels, comments); if fetch fails, stop and show the error
 - Check user has write permissions to the repo (auth required)
 - Note issue state (open/closed/locked) and existing comments for context
@@ -180,7 +185,8 @@ _Post this comment, or tell me what to change?_
 ### 10. **Post the Comment**
 
 ```bash
-gh issue comment "${GH_ISSUE_NUMBER}" \
+ISSUE_NUM=$(echo "$ARGUMENTS" | awk '{print $1}' | tr -d '#')
+gh issue comment "${ISSUE_NUM}" \
   --body-file "~/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}/drafts/issue_comment_draft.md"
 ```
 
@@ -244,7 +250,7 @@ gh issue comment "${GH_ISSUE_NUMBER}" \
 
 | Scenario                    | Action                                                             |
 | --------------------------- | ------------------------------------------------------------------ |
-| `GH_ISSUE_NUMBER` not set   | Ask user: "Which issue? (use `#123` or set `$GH_ISSUE_NUMBER`)"    |
+| Issue number missing from arguments | Ask user: "Which issue? Pass the number as the first argument, e.g. `/gh-issue-comment 42 ...`" |
 | `gh issue view` fails       | Show error, suggest `gh auth status`                               |
 | Intent is ambiguous         | Ask: "Do you want to [option A] or [option B]?"                    |
 | Comment tone is dismissive  | Revise in step 6; make it constructive                             |
