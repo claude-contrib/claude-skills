@@ -15,6 +15,30 @@ Each command follows a **draft → iterate → confirm → execute** workflow. N
 - [`gh` CLI](https://cli.github.com/) installed and authenticated (`gh auth status`)
 - Write permissions on the target repository
 
+## Workflow
+
+The commands form a spec-driven development pipeline. The main flow moves top-to-bottom from issue creation through code review, with supporting commands available at each stage.
+
+<picture>
+  <img src="./docs/workflow.svg" alt="Spec-driven development workflow: Issue → Plan → Develop → Implement → Review" width="680">
+</picture>
+
+**Main pipeline:**
+
+1. **`/gh-issue-create`** — open a GitHub issue describing the work
+2. **`/gh-issue-plan`** — draft a high-level implementation plan, posted as an issue comment. Iterate with human feedback until the plan is approved.
+3. **`/gh-issue-develop`** — promote the approved plan into an execution-ready plan, create a feature branch, commit the plan to `.github/claude/plans/`, and open a draft PR
+4. **Implementation** — engineer and/or agent implement the tasks from the plan
+5. **`/gh-pr-create`** — generate a diff-driven PR description and mark the PR ready for review
+6. **`/gh-pr-review`** — structured code review with severity-classified findings
+
+**Supporting commands** can be used at any point during the pipeline:
+
+- **`/gh-issue-edit`**, **`/gh-issue-comment`** — refine issues during planning
+- **`/gh-pr-edit`**, **`/gh-pr-comment`** — update PRs during review
+
+Each step is optional — you can enter the pipeline at any point. For example, use `/gh-pr-review` on any existing PR without going through the full flow.
+
 ## Commands
 
 ### `/gh-issue-create`
@@ -82,7 +106,7 @@ Promote a draft plan into an execution-ready plan, create a feature branch, and 
 /gh-issue-develop 42 --base develop
 ```
 
-The first argument is the issue number. Requires a draft plan posted by `/gh-issue-plan` on the issue. Expands the high-level plan into an execution-ready format (with file paths, acceptance criteria, test strategy, and commit messages per task), creates a branch (`42/slugified-title`), saves the plan to `.claude/plans/`, commits it, and opens a draft PR linking to the issue. Supports `--base` to branch from a non-default branch.
+The first argument is the issue number. Requires a draft plan posted by `/gh-issue-plan` on the issue. Expands the high-level plan into an execution-ready format (with file paths, acceptance criteria, test strategy, and commit messages per task), creates a branch (`42/slugified-title`), saves the plan to `.github/claude/plans/`, commits it, and opens a draft PR linking to the issue. Supports `--base` to branch from a non-default branch.
 
 ---
 
