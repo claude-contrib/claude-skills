@@ -1,4 +1,5 @@
 ---
+name: pr-edit
 description: >
   Edits a GitHub pull request title and/or body according to requested changes,
   parses context intelligently, detects conflicts, validates for quality, then
@@ -244,7 +245,7 @@ gh pr edit "${PR_NUM}" \
 
 | Scenario                   | Action                                                             |
 | -------------------------- | ------------------------------------------------------------------ |
-| PR number missing from arguments | Ask user: "Which PR? Pass the number as the first argument, e.g. `/gh-pr-edit 42 ...`" |
+| PR number missing from arguments | Ask user: "Which PR? Pass the number as the first argument, e.g. `/gh:pr-edit 42 ...`" |
 | `gh pr view` fails         | Show error, suggest `gh auth status`                               |
 | Title >=72 characters      | Flag in validation (step 6); ask user to shorten before presenting |
 | Markdown body is malformed | Show preview in validation; ask for revision before presenting     |

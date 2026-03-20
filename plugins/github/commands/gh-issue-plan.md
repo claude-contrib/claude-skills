@@ -1,9 +1,10 @@
 ---
+name: issue-plan
 description: >
   Drafts a high-level implementation plan for a GitHub issue — a human-readable
   design document meant for review and iteration. Posts as a comment after
   explicit user confirmation. This is a planning stage; execution happens via
-  /gh-issue-develop once the plan is approved.
+  /gh:issue-develop once the plan is approved.
 argument-hint: "<issue-number> [focus area or aspect to plan]"
 disable-model-invocation: true
 allowed-tools: Bash(*), Write
@@ -15,7 +16,7 @@ allowed-tools: Bash(*), Write
 
 Your role: **read the issue → parse context → detect conflicts → draft a high-level implementation plan → validate for quality → present for review → incorporate feedback → post the plan.**
 
-**This is a design document, not an execution script.** The plan should be readable by an engineer in 2-3 minutes, outline the approach clearly enough for review and discussion, and serve as the input for `/gh-issue-develop` when ready.
+**This is a design document, not an execution script.** The plan should be readable by an engineer in 2-3 minutes, outline the approach clearly enough for review and discussion, and serve as the input for `/gh:issue-develop` when ready.
 
 **Posting the plan** means creating or updating a plan comment. It does NOT mean: implementing anything, writing production code, running tests, or making changes to the repo.
 
@@ -207,7 +208,7 @@ Show critical path if relevant: Task 1 → Task 3 (others parallel)]
 
 ---
 
-_Plan ready? Run `/gh-issue-develop N` to promote to execution._
+_Plan ready? Run `/gh:issue-develop N` to promote to execution._
 ```
 
 #### **Content rules:**
@@ -218,7 +219,7 @@ _Plan ready? Run `/gh-issue-develop N` to promote to execution._
 - **Estimates per task:** T-shirt sizes (XS=15min, S=30min, M=1-2hr, L=2-4hr)
 - **Total 3-8 tasks** for most plans; if more are needed, the issue should probably be split
 - **Open Questions are real:** Only list genuine unknowns; don't fabricate questions to fill the section
-- **Tracking marker** at the top: `<!-- gh-claude:issue-plan issue=${ISSUE_NUM} -->` (used by `/gh-issue-develop` to find this plan)
+- **Tracking marker** at the top: `<!-- gh-claude:issue-plan issue=${ISSUE_NUM} -->` (used by `/gh:issue-develop` to find this plan)
 
 ### 6. **Validate Plan for Quality**
 
@@ -238,7 +239,7 @@ Before presenting to user, conduct a validation review:
 | **Dependencies**          | Task order makes sense; no circular dependencies?         | Reorder tasks                                            |
 | **Risk calibration**      | Risk level matches what's actually being touched?         | Adjust risk and explain                                  |
 | **Tracking marker**       | `<!-- gh-claude:issue-plan issue=N -->` present at top?   | Add marker                                               |
-| **Actionable by develop** | Plan has enough detail for `/gh-issue-develop` to expand? | Add architectural context or design notes                |
+| **Actionable by develop** | Plan has enough detail for `/gh:issue-develop` to expand? | Add architectural context or design notes                |
 
 **If any check fails:** Revise the draft before step 7. Do NOT proceed with a flawed plan.
 
@@ -251,7 +252,7 @@ Show the draft plan clearly with session context:
 **Draft implementation plan for issue #N: [Title]**
 
 **Session context:** This is draft #1 in this session
-**Next step:** When approved, run `/gh-issue-develop N` to begin execution
+**Next step:** When approved, run `/gh:issue-develop N` to begin execution
 
 [FULL PLAN CONTENT]
 
@@ -292,7 +293,7 @@ _Looks good to post, or what should I change?_
 ### 11. **Confirm Success**
 
 - On success: Show the posted/updated comment URL and confirm whether it was created or updated
-- Remind user: "When the plan is ready, run `/gh-issue-develop N` to begin execution."
+- Remind user: "When the plan is ready, run `/gh:issue-develop N` to begin execution."
 - On failure: Display the full error and suggest `gh auth status`
 
 ---
@@ -304,7 +305,7 @@ _Looks good to post, or what should I change?_
 - **This is a design document, not a build script.** It should communicate intent, approach, and scope — not exact code.
 - **Audience:** An engineer (or the author themselves, later) who needs to understand _what_ will change and _why_ before diving into implementation.
 - **Iteration is expected:** Plans will go through 1-3 rounds of feedback before execution. Keep them easy to revise.
-- **The plan feeds `/gh-issue-develop`:** Include enough architectural detail that the execution stage can expand tasks into concrete code without re-analyzing the issue from scratch.
+- **The plan feeds `/gh:issue-develop`:** Include enough architectural detail that the execution stage can expand tasks into concrete code without re-analyzing the issue from scratch.
 
 ### Content & Structure
 
@@ -354,7 +355,7 @@ _Looks good to post, or what should I change?_
 
 | Scenario                            | Action                                                  |
 | ----------------------------------- | ------------------------------------------------------- |
-| Issue number missing from arguments | Ask user: "Which issue? e.g. `/gh-issue-plan 42 ...`"   |
+| Issue number missing from arguments | Ask user: "Which issue? e.g. `/gh:issue-plan 42 ...`"   |
 | `gh issue view` fails               | Show error, suggest `gh auth status`                    |
 | Git unavailable                     | Skip working-tree check, proceed without that context   |
 | Issue context unclear               | Use Open Questions; ask user to clarify before drafting |

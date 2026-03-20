@@ -1,4 +1,5 @@
 ---
+name: pr-comment
 description: >
   Drafts a GitHub pull request comment based on PR context and intent, parses
   context intelligently, detects conflicts, validates for quality and
@@ -249,7 +250,7 @@ gh pr comment "${PR_NUM}" \
 
 | Scenario                    | Action                                                        |
 | --------------------------- | ------------------------------------------------------------- |
-| PR number missing from arguments | Ask user: "Which PR? Pass the number as the first argument, e.g. `/gh-pr-comment 42 ...`" |
+| PR number missing from arguments | Ask user: "Which PR? Pass the number as the first argument, e.g. `/gh:pr-comment 42 ...`" |
 | `gh pr view` fails          | Show error, suggest `gh auth status`                          |
 | Intent is ambiguous          | Ask: "Do you want to [option A] or [option B]?"               |
 | Comment tone is dismissive   | Revise in step 6; make it constructive                        |

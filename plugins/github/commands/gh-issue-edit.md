@@ -1,4 +1,5 @@
 ---
+name: issue-edit
 description: >
   Edits a GitHub issue title and/or body according to requested changes, parses
   context intelligently, detects conflicts, validates for quality, then applies
@@ -236,7 +237,7 @@ gh issue edit "${ISSUE_NUM}" \
 
 | Scenario                   | Action                                                             |
 | -------------------------- | ------------------------------------------------------------------ |
-| Issue number missing from arguments | Ask user: "Which issue? Pass the number as the first argument, e.g. `/gh-issue-edit 42 ...`" |
+| Issue number missing from arguments | Ask user: "Which issue? Pass the number as the first argument, e.g. `/gh:issue-edit 42 ...`" |
 | `gh issue view` fails      | Show error, suggest `gh auth status`                               |
 | Title ≥72 characters       | Flag in validation (step 6); ask user to shorten before presenting |
 | Markdown body is malformed | Show preview in validation; ask for revision before presenting     |

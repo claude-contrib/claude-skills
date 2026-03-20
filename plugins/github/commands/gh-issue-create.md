@@ -1,4 +1,5 @@
 ---
+name: issue-create
 description: >
   Drafts a new GitHub issue with title and structured body from a description,
   detects repo issue templates, validates for quality, then creates it after

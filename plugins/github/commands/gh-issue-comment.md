@@ -1,4 +1,5 @@
 ---
+name: issue-comment
 description: >
   Drafts a GitHub issue comment based on issue context and intent, parses
   context intelligently, detects conflicts, validates for quality and
@@ -251,7 +252,7 @@ gh issue comment "${ISSUE_NUM}" \
 
 | Scenario                    | Action                                                             |
 | --------------------------- | ------------------------------------------------------------------ |
-| Issue number missing from arguments | Ask user: "Which issue? Pass the number as the first argument, e.g. `/gh-issue-comment 42 ...`" |
+| Issue number missing from arguments | Ask user: "Which issue? Pass the number as the first argument, e.g. `/gh:issue-comment 42 ...`" |
 | `gh issue view` fails       | Show error, suggest `gh auth status`                               |
 | Intent is ambiguous         | Ask: "Do you want to [option A] or [option B]?"                    |
 | Comment tone is dismissive  | Revise in step 6; make it constructive                             |
