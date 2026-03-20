@@ -19,6 +19,7 @@
       in
       {
         devShells.default = pkgs.mkShell {
+          name = "claude-skills";
           packages = with pkgs; [
             jq
             bash
