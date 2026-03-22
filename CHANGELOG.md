@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/claude-contrib/claude-skills/compare/v1.1.0...v1.2.0) (2026-03-22)
+
+
+### Features
+
+* **github:** redesign PR body, harden develop workflow, full idempotency ([4f3c229](https://github.com/claude-contrib/claude-skills/commit/4f3c229f6c00caa0b746dab8639d205063785594))
+* **github:** restructure PR body template with summary section ([a21ab79](https://github.com/claude-contrib/claude-skills/commit/a21ab795c05a81cf8697333fe75a5569f0b01ff9))
+
 ## [1.1.0](https://github.com/claude-contrib/claude-skills/compare/v1.0.0...v1.1.0) (2026-03-19)
 
 
