@@ -440,10 +440,10 @@ gh pr edit "${PR_NUMBER}" --add-assignee @me 2>/dev/null || true
 **Draft PR body structure** (save to `${SESSION_DIR}/drafts/develop_pr_body.md` before running `gh pr create`):
 
 ```markdown
-Closes #${ISSUE_NUM}: ${ISSUE_TITLE}.
----
+## Summary
 
-:robot: Prepared from the approved [execution plan](https://github.com/${REPO}/blob/${BRANCH_NAME}/.github/claude/plans/${ISSUE_NUM}-${TITLE_SLUG}.md).
+- Closes #${ISSUE_NUM}: ${ISSUE_TITLE}.
+- [Claude execution plan](https://github.com/${REPO}/blob/${BRANCH_NAME}/.github/claude/plans/${ISSUE_NUM}-${TITLE_SLUG}.md).
 
 ## Tasks
 
