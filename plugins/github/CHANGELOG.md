@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/claude-contrib/claude-skills/compare/v1.2.1...github-v1.2.2) (2026-03-23)
+
+
+### Bug Fixes
+
+* standardize command name references from /github: to /gh- ([1a3744a](https://github.com/claude-contrib/claude-skills/commit/1a3744a8e302b3d26f721e242446c88a368a938d))
+
 ## [1.2.1](https://github.com/claude-contrib/claude-skills/compare/v1.2.0...github-v1.2.1) (2026-03-23)
 
 
