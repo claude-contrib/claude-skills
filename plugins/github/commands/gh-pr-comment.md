@@ -1,5 +1,5 @@
 ---
-name: pr-comment
+name: gh-pr-comment
 description: >
   Drafts a GitHub pull request comment based on PR context and intent, parses
   context intelligently, detects conflicts, validates for quality and
@@ -248,17 +248,17 @@ gh pr comment "${PR_NUM}" \
 
 ## Error Messages & Recovery
 
-| Scenario                         | Action                                                                                        |
-| -------------------------------- | --------------------------------------------------------------------------------------------- |
-| PR number missing from arguments | Ask user: "Which PR? Pass the number as the first argument, e.g. `/github:pr-comment 42 ...`" |
-| `gh pr view` fails               | Show error, suggest `gh auth status`                                                          |
-| Intent is ambiguous              | Ask: "Do you want to [option A] or [option B]?"                                               |
-| Comment tone is dismissive       | Revise in step 6; make it constructive                                                        |
-| Comment is pure speculation      | Flag in step 6; ask to rewrite as questions                                                   |
-| Comment would be redundant       | Check against existing comments; offer to revise                                              |
-| PR is draft or merged            | Note state in step 7 presentation; confirm before posting                                     |
-| Markdown is broken               | Fix in step 6; show preview before presenting                                                 |
-| `gh pr comment` fails            | Show error, suggest `gh auth status` or repo permission check                                 |
-| User interrupts drafting         | Ask: "Should I save the draft, discard it, or resume?"                                        |
-| Validation detects issues        | Revise in step 6; do NOT present problematic comment                                          |
-| Conflict detected                | Show conflict, ask user to confirm before proceeding                                          |
+| Scenario                         | Action                                                                                    |
+| -------------------------------- | ----------------------------------------------------------------------------------------- |
+| PR number missing from arguments | Ask user: "Which PR? Pass the number as the first argument, e.g. `/gh-pr-comment 42 ...`" |
+| `gh pr view` fails               | Show error, suggest `gh auth status`                                                      |
+| Intent is ambiguous              | Ask: "Do you want to [option A] or [option B]?"                                           |
+| Comment tone is dismissive       | Revise in step 6; make it constructive                                                    |
+| Comment is pure speculation      | Flag in step 6; ask to rewrite as questions                                               |
+| Comment would be redundant       | Check against existing comments; offer to revise                                          |
+| PR is draft or merged            | Note state in step 7 presentation; confirm before posting                                 |
+| Markdown is broken               | Fix in step 6; show preview before presenting                                             |
+| `gh pr comment` fails            | Show error, suggest `gh auth status` or repo permission check                             |
+| User interrupts drafting         | Ask: "Should I save the draft, discard it, or resume?"                                    |
+| Validation detects issues        | Revise in step 6; do NOT present problematic comment                                      |
+| Conflict detected                | Show conflict, ask user to confirm before proceeding                                      |

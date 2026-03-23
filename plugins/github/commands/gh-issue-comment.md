@@ -1,5 +1,5 @@
 ---
-name: issue-comment
+name: gh-issue-comment
 description: >
   Drafts a GitHub issue comment based on issue context and intent, parses
   context intelligently, detects conflicts, validates for quality and
@@ -250,17 +250,17 @@ gh issue comment "${ISSUE_NUM}" \
 
 ## Error Messages & Recovery
 
-| Scenario                            | Action                                                                                              |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Issue number missing from arguments | Ask user: "Which issue? Pass the number as the first argument, e.g. `/github:issue-comment 42 ...`" |
-| `gh issue view` fails               | Show error, suggest `gh auth status`                                                                |
-| Intent is ambiguous                 | Ask: "Do you want to [option A] or [option B]?"                                                     |
-| Comment tone is dismissive          | Revise in step 6; make it constructive                                                              |
-| Comment is pure speculation         | Flag in step 6; ask to rewrite as questions                                                         |
-| Comment would be redundant          | Check against existing comments; offer to revise before presenting                                  |
-| Issue is closed or locked           | Note state in step 7 presentation; confirm before posting                                           |
-| Markdown is broken                  | Fix in step 6; show preview before presenting                                                       |
-| `gh issue comment` fails            | Show error, suggest `gh auth status` or repo permission check                                       |
-| User interrupts drafting            | Ask: "Should I save the draft, discard it, or resume?"                                              |
-| Validation detects issues           | Revise in step 6; do NOT present problematic comment                                                |
-| Conflict detected                   | Show conflict, ask user to confirm before proceeding                                                |
+| Scenario                            | Action                                                                                          |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Issue number missing from arguments | Ask user: "Which issue? Pass the number as the first argument, e.g. `/gh-issue-comment 42 ...`" |
+| `gh issue view` fails               | Show error, suggest `gh auth status`                                                            |
+| Intent is ambiguous                 | Ask: "Do you want to [option A] or [option B]?"                                                 |
+| Comment tone is dismissive          | Revise in step 6; make it constructive                                                          |
+| Comment is pure speculation         | Flag in step 6; ask to rewrite as questions                                                     |
+| Comment would be redundant          | Check against existing comments; offer to revise before presenting                              |
+| Issue is closed or locked           | Note state in step 7 presentation; confirm before posting                                       |
+| Markdown is broken                  | Fix in step 6; show preview before presenting                                                   |
+| `gh issue comment` fails            | Show error, suggest `gh auth status` or repo permission check                                   |
+| User interrupts drafting            | Ask: "Should I save the draft, discard it, or resume?"                                          |
+| Validation detects issues           | Revise in step 6; do NOT present problematic comment                                            |
+| Conflict detected                   | Show conflict, ask user to confirm before proceeding                                            |

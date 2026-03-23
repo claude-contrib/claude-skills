@@ -1,5 +1,5 @@
 ---
-name: pr-create
+name: gh-pr-create
 description: >
   Drafts a new GitHub pull request with title and structured body generated from
   the current branch's diff and commits, detects PR templates, validates for
@@ -123,7 +123,7 @@ Your role: **analyze the branch → gather diff and commit context → detect te
 
 **Before drafting, check for:**
 
-- **Existing PR:** Check if an open PR already exists for this branch; if found, stop: "An open PR already exists for this branch: #N. Use `/github:pr-edit N` to modify it."
+- **Existing PR:** Check if an open PR already exists for this branch; if found, stop: "An open PR already exists for this branch: #N. Use `/gh-pr-edit N` to modify it."
 - **Base branch divergence:** If base branch is significantly ahead, warn: "Base branch is N commits ahead. Consider rebasing before creating the PR."
 - **Session conflicts:** If earlier draft in session contradicts current intent, ask: "Earlier you drafted a different PR. Start fresh?"
 - **Uncommitted changes:** If working tree is dirty, remind user those changes won't be in the PR
@@ -326,7 +326,7 @@ gh pr create "${ARGS[@]}"
 - **On default branch:** Stop; instruct user to create or switch to a feature branch
 - **No commits ahead:** Stop; instruct user to commit changes first
 - **Uncommitted changes:** Warn that they won't be included in the PR
-- **Existing PR for branch:** Stop; suggest `/github:pr-edit N` instead
+- **Existing PR for branch:** Stop; suggest `/gh-pr-edit N` instead
 - **Very large diffs (1000+ lines):** Summarize by area; don't attempt line-by-line coverage in the body
 - **Labels don't exist:** Warn the user: "Label '[name]' doesn't exist in this repo. Create it, use a different label, or skip?"
 - **Reviewers don't exist:** Warn: "User '[name]' not found. Check the handle and try again."
@@ -345,7 +345,7 @@ gh pr create "${ARGS[@]}"
 | `gh auth status` fails          | Show error, suggest `gh auth login`                                                   |
 | Repo info fetch fails           | Show error, suggest `gh auth status`                                                  |
 | Diff is empty                   | Stop: "No changes detected between your branch and base. Nothing to create a PR for." |
-| PR already exists for branch    | Stop: "Open PR #N exists for this branch. Use `/github:pr-edit N` to modify it."      |
+| PR already exists for branch    | Stop: "Open PR #N exists for this branch. Use `/gh-pr-edit N` to modify it."          |
 | Description is too vague        | Infer from diff/commits; confirm with user                                            |
 | Template detection fails        | Proceed with default structure; note templates couldn't be read                       |
 | Labels don't exist in repo      | Warn and offer: create without label, use different label, or skip                    |

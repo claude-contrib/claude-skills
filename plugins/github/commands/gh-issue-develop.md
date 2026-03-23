@@ -1,7 +1,7 @@
 ---
-name: issue-develop
+name: gh-issue-develop
 description: >
-  Promotes a draft implementation plan (from /github:issue-plan) into an
+  Promotes a draft implementation plan (from /gh-issue-plan) into an
   execution-ready plan, creates a feature branch, saves the plan as a
   markdown file in the repo, commits it, and opens a draft PR. This is
   the transition from planning to implementation.
@@ -16,7 +16,7 @@ allowed-tools: Bash(*), Write
 
 Your role: **find the draft plan → expand it into an execution-ready plan → create a branch → save the plan in the repo → commit → open a draft PR.**
 
-**This command bridges planning and implementation.** It takes the human-reviewed draft plan from `/github:issue-plan` and sets up the development environment: branch, execution plan file, and draft PR. After this, the engineer (with or without agent assistance) implements the tasks.
+**This command bridges planning and implementation.** It takes the human-reviewed draft plan from `/gh-issue-plan` and sets up the development environment: branch, execution plan file, and draft PR. After this, the engineer (with or without agent assistance) implements the tasks.
 
 ## Prerequisites
 
@@ -24,7 +24,7 @@ Your role: **find the draft plan → expand it into an execution-ready plan → 
 - Directories: `${HOME}/.local/state/gh/claude/sessions/${CLAUDE_SESSION_ID}` must be writable
 - Write permissions on the repository
 - Git repo with clean working tree (no uncommitted changes)
-- A draft plan comment must exist on the issue (posted by `/github:issue-plan`)
+- A draft plan comment must exist on the issue (posted by `/gh-issue-plan`)
 
 ## Context
 
@@ -108,7 +108,7 @@ Your role: **find the draft plan → expand it into an execution-ready plan → 
 - Verify `gh` authentication; if not authenticated, stop and ask user to run `gh auth login`
 - Fetch issue details; if fetch fails, stop and show error
 - **Find the draft plan:** Look for a comment containing `<!-- gh-claude:issue-plan issue=N -->` on the issue
-  - If no plan found, stop: "No draft plan found on issue #N. Run `/github:issue-plan N` first to create one."
+  - If no plan found, stop: "No draft plan found on issue #N. Run `/gh-issue-plan N` first to create one."
   - If plan found, extract it for expansion
 - **Check working tree:** If uncommitted changes exist, stop: "You have uncommitted changes. Commit or stash them before running this command."
 - **Check current branch:** If not on default branch, warn: "You're on branch '[name]', not the default branch. The new branch will be created from the latest 'origin/[default]'. Proceed?"
@@ -116,7 +116,7 @@ Your role: **find the draft plan → expand it into an execution-ready plan → 
   - Skip branch creation entirely in step 8
   - Note in step 6: "Using current branch '[name]' (matches issue #N)"
   - If the current branch does NOT match and is not the default branch, warn as before
-- **Check for existing PR:** If an open PR already exists for the current branch or the generated branch name, warn: "An open PR #N already exists for this branch. Running develop will commit the plan and update the existing PR context. Proceed, or use `/github:pr-edit N` instead?"
+- **Check for existing PR:** If an open PR already exists for the current branch or the generated branch name, warn: "An open PR #N already exists for this branch. Running develop will commit the plan and update the existing PR context. Proceed, or use `/gh-pr-edit N` instead?"
 - **Check for prior run (session state):** Load session state from `gh-issue-develop-state.md`. If it shows a partial run (e.g., `status: branch_created` or `status: plan_committed`), inform the user: "A previous run completed through [step]. Resume from [next step]?" If it shows `status: pr_created`, inform: "Development was already set up for #N. Re-run to update the plan, or view current status?"
 - **Check for prior run (repo state):** If the "Existing Plan File" context block found a plan file for this issue in `.github/claude/plans/`, inform the user even if session state is empty (cross-session re-run): "A plan file already exists for #N at [path]. Update with a new plan, or view current status?" This check works across sessions because the repo is the source of truth.
 
@@ -529,13 +529,13 @@ All `${...}` variables are derived in step 8a. Task names and count come from th
 
 ### Edge Cases
 
-- **No plan exists:** Stop and redirect to `/github:issue-plan N`
+- **No plan exists:** Stop and redirect to `/gh-issue-plan N`
 - **Plan has critical open questions:** Warn but allow proceeding
 - **Branch already exists:** Ask to switch to it or use a different name
 - **Dirty working tree:** Stop; ask to commit or stash
 - **Not on default branch:** Warn and confirm
 - **Plan was updated since last read:** Always fetch fresh from the issue comment
-- **PR already exists for branch:** Skip PR creation; commit the plan only. Note the existing PR and suggest `/github:pr-edit N` to update its description.
+- **PR already exists for branch:** Skip PR creation; commit the plan only. Note the existing PR and suggest `/gh-pr-edit N` to update its description.
 - **Already on matching branch:** Skip branch creation; use current branch. Note this in the confirmation step.
 - **Plan file already exists:** Warn before overwriting; the file may be from a previous run or another branch.
 
@@ -545,8 +545,8 @@ All `${...}` variables are derived in step 8a. Task names and count come from th
 
 | Scenario                           | Action                                                                                                                                                                |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Issue number missing               | Ask user: "Which issue? e.g. `/github:issue-develop 42`"                                                                                                              |
-| No draft plan found on issue       | Stop: "No plan found. Run `/github:issue-plan N` first."                                                                                                              |
+| Issue number missing               | Ask user: "Which issue? e.g. `/gh-issue-develop 42`"                                                                                                                  |
+| No draft plan found on issue       | Stop: "No plan found. Run `/gh-issue-plan N` first."                                                                                                                  |
 | `gh auth status` fails             | Show error, suggest `gh auth login`                                                                                                                                   |
 | Working tree is dirty              | Stop: "Uncommitted changes. Commit or stash before proceeding."                                                                                                       |
 | Not on default branch              | Warn: "You're on '[branch]'. New branch will be created from the latest 'origin/[default]'. Proceed?"                                                                 |
@@ -562,7 +562,7 @@ All `${...}` variables are derived in step 8a. Task names and count come from th
 | Plan has unresolved dependencies   | Warn: "Dependency PR #N is still open. Proceed anyway?"                                                                                                               |
 | Issue is closed                    | Warn: "Issue #N is closed. Still create development branch?"                                                                                                          |
 | Validation detects issues          | Revise in step 5; do NOT present flawed execution plan                                                                                                                |
-| PR already exists for branch       | Skip PR creation; note "PR #N exists. Plan committed. Use `/github:pr-edit N` to update."                                                                             |
+| PR already exists for branch       | Skip PR creation; note "PR #N exists. Plan committed. Use `/gh-pr-edit N` to update."                                                                                 |
 | Already on matching branch         | Skip branch creation; note "Using current branch '[name]'" in confirmation                                                                                            |
 | Re-run: plan unchanged             | Skip commit; note "Plan file unchanged — nothing to commit"                                                                                                           |
 | Re-run: plan updated, PR exists    | Update PR body automatically; note "Updated PR #N body to match revised plan"                                                                                         |

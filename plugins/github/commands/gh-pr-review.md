@@ -1,5 +1,5 @@
 ---
-name: pr-review
+name: gh-pr-review
 description: >
   Drafts a GitHub pull request review with structured code feedback and submits
   it after user confirmation. Supports approve, request-changes, or comment
@@ -291,7 +291,7 @@ _Submit this review, or tell me what to change?_
 
 | Scenario                            | Action                                                                                                   |
 | ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| PR number missing from arguments    | Ask user: "Which PR? Pass the number as the first argument, e.g. `/github:pr-review 42 approve`"         |
+| PR number missing from arguments    | Ask user: "Which PR? Pass the number as the first argument, e.g. `/gh-pr-review 42 approve`"             |
 | `gh pr view` fails                  | Show error, suggest `gh auth status`                                                                     |
 | Diff is empty                       | Stop immediately; inform user and do not proceed                                                         |
 | Diff is massive (1000+ lines)       | Ask: "Focus on critical files only?" and list scope                                                      |

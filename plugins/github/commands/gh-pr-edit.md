@@ -1,5 +1,5 @@
 ---
-name: pr-edit
+name: gh-pr-edit
 description: >
   Edits a GitHub pull request title and/or body according to requested changes,
   parses context intelligently, detects conflicts, validates for quality, then
@@ -243,16 +243,16 @@ gh pr edit "${PR_NUM}" \
 
 ## Error Messages & Recovery
 
-| Scenario                         | Action                                                                                     |
-| -------------------------------- | ------------------------------------------------------------------------------------------ |
-| PR number missing from arguments | Ask user: "Which PR? Pass the number as the first argument, e.g. `/github:pr-edit 42 ...`" |
-| `gh pr view` fails               | Show error, suggest `gh auth status`                                                       |
-| Title >=72 characters            | Flag in validation (step 6); ask user to shorten before presenting                         |
-| Markdown body is malformed       | Show preview in validation; ask for revision before presenting                             |
-| Request is ambiguous             | Ask: "Did you mean [option A] or [option B]?"                                              |
-| Content removal requested        | Confirm: "Remove [section]—is this correct?"                                               |
-| PR is merged being edited        | Warn: "This PR is merged. Edits won't affect the merge. Continue?"                         |
-| `gh pr edit` fails               | Show error, suggest `gh auth status` or repo permission check                              |
-| User interrupts editing          | Ask: "Should I apply the current draft, save it, or discard it?"                           |
-| Validation fails                 | Revise and return to step 6; do NOT present flawed edit                                    |
-| Conflict detected                | Show conflict, ask user to confirm before proceeding                                       |
+| Scenario                         | Action                                                                                 |
+| -------------------------------- | -------------------------------------------------------------------------------------- |
+| PR number missing from arguments | Ask user: "Which PR? Pass the number as the first argument, e.g. `/gh-pr-edit 42 ...`" |
+| `gh pr view` fails               | Show error, suggest `gh auth status`                                                   |
+| Title >=72 characters            | Flag in validation (step 6); ask user to shorten before presenting                     |
+| Markdown body is malformed       | Show preview in validation; ask for revision before presenting                         |
+| Request is ambiguous             | Ask: "Did you mean [option A] or [option B]?"                                          |
+| Content removal requested        | Confirm: "Remove [section]—is this correct?"                                           |
+| PR is merged being edited        | Warn: "This PR is merged. Edits won't affect the merge. Continue?"                     |
+| `gh pr edit` fails               | Show error, suggest `gh auth status` or repo permission check                          |
+| User interrupts editing          | Ask: "Should I apply the current draft, save it, or discard it?"                       |
+| Validation fails                 | Revise and return to step 6; do NOT present flawed edit                                |
+| Conflict detected                | Show conflict, ask user to confirm before proceeding                                   |
