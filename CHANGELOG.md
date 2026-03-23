@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/claude-contrib/claude-skills/compare/v1.2.0...v1.2.1) (2026-03-23)
+
+
+### Bug Fixes
+
+* update slash command references from /gh: to /github: ([c678184](https://github.com/claude-contrib/claude-skills/commit/c678184a530a5aee0fdd5d020cb3e2f29adf68dd))
+
 ## [1.2.0](https://github.com/claude-contrib/claude-skills/compare/v1.1.0...v1.2.0) (2026-03-22)
 
 

@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "A curated collection of Claude Code skills — slash commands and prompt templates",
-    "version": "1.2.0"
+    "version": "1.2.1"
   },
   "plugins": [
     {
       "name": "github",
       "description": "GitHub integration — slash commands for managing issues and pull requests",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "author": {
         "name": "claude-contrib"
       },
