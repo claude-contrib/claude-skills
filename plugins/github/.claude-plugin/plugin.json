@@ -1,5 +1,5 @@
 {
-  "name": "gh",
+  "name": "github",
   "version": "1.2.0",
   "description": "GitHub integration — slash commands for managing issues and pull requests",
   "author": {
@@ -10,11 +10,5 @@
   "homepage": "https://github.com/claude-contrib/claude-skills",
   "repository": "https://github.com/claude-contrib/claude-skills",
   "license": "MIT",
-  "keywords": [
-    "github",
-    "issues",
-    "pull-requests",
-    "gh-cli",
-    "code-review"
-  ]
+  "keywords": ["github", "issues", "pull-requests", "gh-cli", "code-review"]
 }

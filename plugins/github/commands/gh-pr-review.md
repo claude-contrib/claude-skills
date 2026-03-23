@@ -164,17 +164,17 @@ Before presenting to user, conduct a validation review:
 
 **Check:**
 
-| Check                    | Validation                                      | Action if Failed                                       |
-| ------------------------ | ----------------------------------------------- | ------------------------------------------------------ |
-| **Tone**                 | Professional, constructive, collaborative?      | Revise to remove dismissive/condescending language      |
-| **Specificity**          | References exact files, lines, code context?    | Add specific locations and code references              |
-| **Findings accuracy**    | Each finding cites actual code from the diff?   | Remove findings not supported by diff evidence          |
+| Check                    | Validation                                                     | Action if Failed                                         |
+| ------------------------ | -------------------------------------------------------------- | -------------------------------------------------------- |
+| **Tone**                 | Professional, constructive, collaborative?                     | Revise to remove dismissive/condescending language       |
+| **Specificity**          | References exact files, lines, code context?                   | Add specific locations and code references               |
+| **Findings accuracy**    | Each finding cites actual code from the diff?                  | Remove findings not supported by diff evidence           |
 | **Severity calibration** | Each severity matches step 4 criteria and the borderline test? | Re-classify using "could a real user trigger this?" test |
-| **Suggestions**          | Concrete fixes offered, not just criticism?     | Add actionable suggestions for each finding             |
-| **Outcome alignment**    | Outcome matches the severity of findings?       | Approve should have no High findings; adjust if needed  |
-| **Redundancy**           | Doesn't repeat points from existing reviews?    | Check review history; add new perspective only          |
-| **Markdown validity**    | Renders correctly with proper code blocks?      | Fix formatting before presenting                        |
-| **Tracking marker**      | Marker appended with correct PR and commit SHA? | Verify marker format and values                         |
+| **Suggestions**          | Concrete fixes offered, not just criticism?                    | Add actionable suggestions for each finding              |
+| **Outcome alignment**    | Outcome matches the severity of findings?                      | Approve should have no High findings; adjust if needed   |
+| **Redundancy**           | Doesn't repeat points from existing reviews?                   | Check review history; add new perspective only           |
+| **Markdown validity**    | Renders correctly with proper code blocks?                     | Fix formatting before presenting                         |
+| **Tracking marker**      | Marker appended with correct PR and commit SHA?                | Verify marker format and values                          |
 
 **If any check fails:** Revise the draft before step 8. Do NOT proceed with problematic reviews.
 
@@ -289,15 +289,15 @@ _Submit this review, or tell me what to change?_
 
 ## Error Messages & Recovery
 
-| Scenario                            | Action                                                              |
-| ----------------------------------- | ------------------------------------------------------------------- |
-| PR number missing from arguments    | Ask user: "Which PR? Pass the number as the first argument, e.g. `/gh:pr-review 42 approve`" |
-| `gh pr view` fails                  | Show error, suggest `gh auth status`                                |
-| Diff is empty                       | Stop immediately; inform user and do not proceed                    |
-| Diff is massive (1000+ lines)       | Ask: "Focus on critical files only?" and list scope                 |
+| Scenario                            | Action                                                                                                   |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| PR number missing from arguments    | Ask user: "Which PR? Pass the number as the first argument, e.g. `/github:pr-review 42 approve`"         |
+| `gh pr view` fails                  | Show error, suggest `gh auth status`                                                                     |
+| Diff is empty                       | Stop immediately; inform user and do not proceed                                                         |
+| Diff is massive (1000+ lines)       | Ask: "Focus on critical files only?" and list scope                                                      |
 | `gh pr review` fails (own PR)       | Suggest: "You can't approve or request changes on your own PR. Submit as a comment-type review instead." |
-| `gh pr review` fails (auth/network) | Show error, suggest `gh auth status`                                |
-| Prior AI review exists              | Ask: "Resubmit or cancel?"                                          |
-| User interrupts reviewing           | Offer: save draft, discard, or resume                               |
-| Outcome is ambiguous                | Ask: "Should this be approve, request-changes, or comment?"         |
-| Validation detects issues           | Revise in step 7; do NOT present problematic review                 |
+| `gh pr review` fails (auth/network) | Show error, suggest `gh auth status`                                                                     |
+| Prior AI review exists              | Ask: "Resubmit or cancel?"                                                                               |
+| User interrupts reviewing           | Offer: save draft, discard, or resume                                                                    |
+| Outcome is ambiguous                | Ask: "Should this be approve, request-changes, or comment?"                                              |
+| Validation detects issues           | Revise in step 7; do NOT present problematic review                                                      |

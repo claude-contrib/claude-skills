@@ -123,7 +123,7 @@ Your role: **analyze the branch → gather diff and commit context → detect te
 
 **Before drafting, check for:**
 
-- **Existing PR:** Check if an open PR already exists for this branch; if found, stop: "An open PR already exists for this branch: #N. Use `/gh:pr-edit N` to modify it."
+- **Existing PR:** Check if an open PR already exists for this branch; if found, stop: "An open PR already exists for this branch: #N. Use `/github:pr-edit N` to modify it."
 - **Base branch divergence:** If base branch is significantly ahead, warn: "Base branch is N commits ahead. Consider rebasing before creating the PR."
 - **Session conflicts:** If earlier draft in session contradicts current intent, ask: "Earlier you drafted a different PR. Start fresh?"
 - **Uncommitted changes:** If working tree is dirty, remind user those changes won't be in the PR
@@ -189,17 +189,17 @@ Before presenting to user, conduct a validation review:
 
 **Check:**
 
-| Check                   | Validation                                   | Action if Failed                                 |
-| ----------------------- | -------------------------------------------- | ------------------------------------------------ |
-| **Title length**        | Title must be < 72 characters                | Shorten and ask user to confirm                  |
-| **Title mood**          | Imperative mood (Add, Fix, Update, not Added)| Revise to imperative                             |
-| **Markdown validity**   | Body Markdown renders correctly              | Fix formatting issues                            |
-| **Diff accuracy**       | Body accurately reflects the actual diff     | Remove claims not supported by the diff          |
-| **No invented details** | Nothing fabricated beyond diff and commits   | Remove speculation; mark unknowns as TODO        |
-| **Template alignment**  | Body follows selected template structure     | Adjust to match template sections                |
-| **Label validity**      | Requested labels exist in the repo           | Warn if labels don't exist; suggest alternatives |
-| **Linked issues**       | Issue references are correctly formatted     | Fix reference syntax (Fixes #N, Closes #N)       |
-| **Completeness**        | All relevant sections populated              | Fill in or mark as `[TODO: ...]`                 |
+| Check                   | Validation                                    | Action if Failed                                 |
+| ----------------------- | --------------------------------------------- | ------------------------------------------------ |
+| **Title length**        | Title must be < 72 characters                 | Shorten and ask user to confirm                  |
+| **Title mood**          | Imperative mood (Add, Fix, Update, not Added) | Revise to imperative                             |
+| **Markdown validity**   | Body Markdown renders correctly               | Fix formatting issues                            |
+| **Diff accuracy**       | Body accurately reflects the actual diff      | Remove claims not supported by the diff          |
+| **No invented details** | Nothing fabricated beyond diff and commits    | Remove speculation; mark unknowns as TODO        |
+| **Template alignment**  | Body follows selected template structure      | Adjust to match template sections                |
+| **Label validity**      | Requested labels exist in the repo            | Warn if labels don't exist; suggest alternatives |
+| **Linked issues**       | Issue references are correctly formatted      | Fix reference syntax (Fixes #N, Closes #N)       |
+| **Completeness**        | All relevant sections populated               | Fill in or mark as `[TODO: ...]`                 |
 
 **If any check fails:** Revise the draft before step 7. Do NOT proceed with flawed content.
 
@@ -326,7 +326,7 @@ gh pr create "${ARGS[@]}"
 - **On default branch:** Stop; instruct user to create or switch to a feature branch
 - **No commits ahead:** Stop; instruct user to commit changes first
 - **Uncommitted changes:** Warn that they won't be included in the PR
-- **Existing PR for branch:** Stop; suggest `/gh:pr-edit N` instead
+- **Existing PR for branch:** Stop; suggest `/github:pr-edit N` instead
 - **Very large diffs (1000+ lines):** Summarize by area; don't attempt line-by-line coverage in the body
 - **Labels don't exist:** Warn the user: "Label '[name]' doesn't exist in this repo. Create it, use a different label, or skip?"
 - **Reviewers don't exist:** Warn: "User '[name]' not found. Check the handle and try again."
@@ -338,22 +338,22 @@ gh pr create "${ARGS[@]}"
 
 ## Error Messages & Recovery
 
-| Scenario                          | Action                                                                               |
-| --------------------------------- | ------------------------------------------------------------------------------------ |
-| On default branch                 | Stop: "You're on the default branch. Create or switch to a feature branch first."    |
-| No commits ahead of base          | Stop: "No commits to include in a PR. Commit your changes first."                    |
-| `gh auth status` fails            | Show error, suggest `gh auth login`                                                  |
-| Repo info fetch fails             | Show error, suggest `gh auth status`                                                 |
-| Diff is empty                     | Stop: "No changes detected between your branch and base. Nothing to create a PR for."|
-| PR already exists for branch      | Stop: "Open PR #N exists for this branch. Use `/gh:pr-edit N` to modify it."         |
-| Description is too vague          | Infer from diff/commits; confirm with user                                           |
-| Template detection fails          | Proceed with default structure; note templates couldn't be read                      |
-| Labels don't exist in repo        | Warn and offer: create without label, use different label, or skip                   |
-| Reviewers not found               | Warn and offer: create without reviewer, fix handle, or skip                         |
-| Title exceeds 72 characters       | Flag in validation (step 6); shorten before presenting                               |
-| Markdown body is malformed        | Fix in validation; show preview before presenting                                    |
-| `gh pr create` fails (push)       | Show error, suggest `git push -u origin HEAD` then retry                             |
-| `gh pr create` fails (auth)       | Show error, suggest `gh auth status` or repo permission check                        |
-| User interrupts drafting          | Ask: "Should I save the draft, discard it, or resume?"                               |
-| Validation detects issues         | Revise in step 6; do NOT present flawed draft                                        |
-| Base branch significantly ahead   | Warn: "Base is N commits ahead. Consider rebasing before creating the PR."           |
+| Scenario                        | Action                                                                                |
+| ------------------------------- | ------------------------------------------------------------------------------------- |
+| On default branch               | Stop: "You're on the default branch. Create or switch to a feature branch first."     |
+| No commits ahead of base        | Stop: "No commits to include in a PR. Commit your changes first."                     |
+| `gh auth status` fails          | Show error, suggest `gh auth login`                                                   |
+| Repo info fetch fails           | Show error, suggest `gh auth status`                                                  |
+| Diff is empty                   | Stop: "No changes detected between your branch and base. Nothing to create a PR for." |
+| PR already exists for branch    | Stop: "Open PR #N exists for this branch. Use `/github:pr-edit N` to modify it."      |
+| Description is too vague        | Infer from diff/commits; confirm with user                                            |
+| Template detection fails        | Proceed with default structure; note templates couldn't be read                       |
+| Labels don't exist in repo      | Warn and offer: create without label, use different label, or skip                    |
+| Reviewers not found             | Warn and offer: create without reviewer, fix handle, or skip                          |
+| Title exceeds 72 characters     | Flag in validation (step 6); shorten before presenting                                |
+| Markdown body is malformed      | Fix in validation; show preview before presenting                                     |
+| `gh pr create` fails (push)     | Show error, suggest `git push -u origin HEAD` then retry                              |
+| `gh pr create` fails (auth)     | Show error, suggest `gh auth status` or repo permission check                         |
+| User interrupts drafting        | Ask: "Should I save the draft, discard it, or resume?"                                |
+| Validation detects issues       | Revise in step 6; do NOT present flawed draft                                         |
+| Base branch significantly ahead | Warn: "Base is N commits ahead. Consider rebasing before creating the PR."            |

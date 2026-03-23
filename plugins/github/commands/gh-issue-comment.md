@@ -137,18 +137,18 @@ Before presenting to user, conduct a validation review:
 
 **Check:**
 
-| Check                   | Validation                                     | Action if Failed                                                   |
-| ----------------------- | ---------------------------------------------- | ------------------------------------------------------------------ |
-| **Tone**                | Professional, constructive, respectful?        | Revise to remove sarcasm/dismissal                                 |
-| **Specificity**         | References issue details (not generic)?        | Add specific details or context                                    |
-| **Redundancy**          | Doesn't repeat existing comments?              | Check against existing comments; add new perspective or remove     |
-| **Speculation**         | No unsupported claims? Asks questions instead? | Replace speculation with "Have you tried..." or specific questions |
-| **Markdown validity**   | Renders correctly?                             | Check code blocks, links, formatting                               |
-| **Issue state aware**   | Tone matches open/closed status?               | Adjust if posting on closed issue                                  |
-| **Length**              | 1–3 paragraphs; readable?                      | Break up long text with bullets or sections                        |
+| Check                   | Validation                                        | Action if Failed                                                                                                           |
+| ----------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Tone**                | Professional, constructive, respectful?           | Revise to remove sarcasm/dismissal                                                                                         |
+| **Specificity**         | References issue details (not generic)?           | Add specific details or context                                                                                            |
+| **Redundancy**          | Doesn't repeat existing comments?                 | Check against existing comments; add new perspective or remove                                                             |
+| **Speculation**         | No unsupported claims? Asks questions instead?    | Replace speculation with "Have you tried..." or specific questions                                                         |
+| **Markdown validity**   | Renders correctly?                                | Check code blocks, links, formatting                                                                                       |
+| **Issue state aware**   | Tone matches open/closed status?                  | Adjust if posting on closed issue                                                                                          |
+| **Length**              | 1–3 paragraphs; readable?                         | Break up long text with bullets or sections                                                                                |
 | **Proportional**        | Comment length is proportional to thread context? | If comment is longer than all existing comments combined, trim to key points; suggest a follow-up if more detail is needed |
-| **Accidental commands** | No unintended close/lock/resolve?              | Verify comment body doesn't trigger unintended actions             |
-| **Helpful**             | Moves issue forward or adds value?             | Ensure comment is constructive, not just acknowledgment            |
+| **Accidental commands** | No unintended close/lock/resolve?                 | Verify comment body doesn't trigger unintended actions                                                                     |
+| **Helpful**             | Moves issue forward or adds value?                | Ensure comment is constructive, not just acknowledgment                                                                    |
 
 **If any check fails:** Revise the draft before step 7. Do NOT proceed with problematic comments.
 
@@ -250,17 +250,17 @@ gh issue comment "${ISSUE_NUM}" \
 
 ## Error Messages & Recovery
 
-| Scenario                    | Action                                                             |
-| --------------------------- | ------------------------------------------------------------------ |
-| Issue number missing from arguments | Ask user: "Which issue? Pass the number as the first argument, e.g. `/gh:issue-comment 42 ...`" |
-| `gh issue view` fails       | Show error, suggest `gh auth status`                               |
-| Intent is ambiguous         | Ask: "Do you want to [option A] or [option B]?"                    |
-| Comment tone is dismissive  | Revise in step 6; make it constructive                             |
-| Comment is pure speculation | Flag in step 6; ask to rewrite as questions                        |
-| Comment would be redundant  | Check against existing comments; offer to revise before presenting |
-| Issue is closed or locked   | Note state in step 7 presentation; confirm before posting          |
-| Markdown is broken          | Fix in step 6; show preview before presenting                      |
-| `gh issue comment` fails    | Show error, suggest `gh auth status` or repo permission check      |
-| User interrupts drafting    | Ask: "Should I save the draft, discard it, or resume?"             |
-| Validation detects issues   | Revise in step 6; do NOT present problematic comment               |
-| Conflict detected           | Show conflict, ask user to confirm before proceeding               |
+| Scenario                            | Action                                                                                              |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Issue number missing from arguments | Ask user: "Which issue? Pass the number as the first argument, e.g. `/github:issue-comment 42 ...`" |
+| `gh issue view` fails               | Show error, suggest `gh auth status`                                                                |
+| Intent is ambiguous                 | Ask: "Do you want to [option A] or [option B]?"                                                     |
+| Comment tone is dismissive          | Revise in step 6; make it constructive                                                              |
+| Comment is pure speculation         | Flag in step 6; ask to rewrite as questions                                                         |
+| Comment would be redundant          | Check against existing comments; offer to revise before presenting                                  |
+| Issue is closed or locked           | Note state in step 7 presentation; confirm before posting                                           |
+| Markdown is broken                  | Fix in step 6; show preview before presenting                                                       |
+| `gh issue comment` fails            | Show error, suggest `gh auth status` or repo permission check                                       |
+| User interrupts drafting            | Ask: "Should I save the draft, discard it, or resume?"                                              |
+| Validation detects issues           | Revise in step 6; do NOT present problematic comment                                                |
+| Conflict detected                   | Show conflict, ask user to confirm before proceeding                                                |
