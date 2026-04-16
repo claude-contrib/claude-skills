@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/claude-contrib/claude-skills/compare/v1.2.2...v1.2.3) (2026-04-16)
+
+
+### Bug Fixes
+
+* add postCreateCommand to restore nix volume permissions ([3f1d3ab](https://github.com/claude-contrib/claude-skills/commit/3f1d3abe7bc6d2b1205b6e26b16d1d50def7eb52))
+
 ## [1.2.2](https://github.com/claude-contrib/claude-skills/compare/v1.2.1...v1.2.2) (2026-03-23)
 
 
