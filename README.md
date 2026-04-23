@@ -3,7 +3,7 @@
 > Slash commands for [Claude Code](https://claude.ai/code) — install a skill, type a command, get the job done. Every time.
 
 [![Claude](https://img.shields.io/badge/Claude-AI-black?logo=anthropic)](https://claude.ai)
-[![Validate](https://github.com/claude-contrib/claude-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/claude-contrib/claude-skills/actions/workflows/validate.yml)
+[![CI](https://github.com/claude-contrib/claude-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/claude-contrib/claude-skills/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/claude-contrib/claude-skills)](https://github.com/claude-contrib/claude-skills/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
