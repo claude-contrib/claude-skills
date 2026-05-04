@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.4](https://github.com/claude-contrib/claude-skills/compare/v1.2.3...v1.2.4) (2026-05-04)
+
+
+### Bug Fixes
+
+* **github:** correct action versions in update.yml ([88ad4c3](https://github.com/claude-contrib/claude-skills/commit/88ad4c32f5fa618f22ca3475605d59dd879fd696))
+
 ## [1.2.3](https://github.com/claude-contrib/claude-skills/compare/v1.2.2...v1.2.3) (2026-04-16)
 
 
