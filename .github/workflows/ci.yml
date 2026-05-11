@@ -1,15 +1,12 @@
 name: CI
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 jobs:
   validate-marketplace:
     runs-on: ubuntu-latest
@@ -22,7 +19,6 @@ jobs:
       - run: pip install check-jsonschema==0.31.3
       - name: Validate marketplace.json
         run: check-jsonschema --schemafile .github/schemas/marketplace.schema.json .claude-plugin/marketplace.json
-
   validate-plugins:
     runs-on: ubuntu-latest
     permissions:
@@ -38,7 +34,6 @@ jobs:
         run: .github/scripts/check-plugin-dirs.sh
       - name: Check plugin.json versions match marketplace entries
         run: .github/scripts/check-version-sync.sh
-
   check-duplicates:
     runs-on: ubuntu-latest
     permissions:
@@ -49,7 +44,6 @@ jobs:
         uses: actions/checkout@v6
       - name: Check for duplicate plugin names
         run: .github/scripts/check-duplicate-names.sh
-
   release:
     needs: [validate-marketplace, validate-plugins, check-duplicates]
     if: github.event_name == 'push'
@@ -67,7 +61,6 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
       - name: Create Release PR
         id: release
         uses: googleapis/release-please-action@v5
