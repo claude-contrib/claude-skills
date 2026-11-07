@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.5](https://github.com/claude-contrib/claude-skills/compare/v1.2.4...v1.2.5) (2026-11-07)
+
+
+### Bug Fixes
+
+* **ci:** merge with the App token so main gets its CI run ([#45](https://github.com/claude-contrib/claude-skills/issues/45)) ([fe6b10a](https://github.com/claude-contrib/claude-skills/commit/fe6b10a0600813882b89f54bfff32f50b204cc67))
+
 ## [1.2.4](https://github.com/claude-contrib/claude-skills/compare/v1.2.3...v1.2.4) (2026-05-04)
 
 
